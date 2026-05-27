@@ -159,11 +159,30 @@ Give a single short sentence of warm encouragement to start. Max 20 words. Sound
 
   if (!task) return null;
 
-  const progress = timerMins > 0 ? 1 - seconds / (timerMins * 60) : 0;
+  const timerProgress = timerMins > 0 ? 1 - seconds / (timerMins * 60) : 0;
+  // Momentum: blend timer progress with ease-of-effort (low difficulty = more momentum)
+  const difficultyBoost = difficulty ? (6 - difficulty) / 5 * 0.15 : 0; // up to +15% boost for easy sessions
+  const momentumProgress = Math.min(1, timerProgress + difficultyBoost);
+  const progress = timerProgress;
   const circumference = 2 * Math.PI * 54;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative">
+      {/* Vertical momentum bar — right edge, only during focus */}
+      {phase === PHASES.FOCUSING && (
+        <div className="fixed right-0 top-0 bottom-0 w-1.5 bg-muted/40 z-10">
+          <motion.div
+            className="absolute bottom-0 left-0 right-0 rounded-t-full bg-primary/30"
+            animate={{ height: `${momentumProgress * 100}%` }}
+            transition={{ duration: 1, ease: "easeOut" }}
+          />
+          <motion.div
+            className="absolute bottom-0 left-0 right-0 rounded-t-full bg-primary/60"
+            animate={{ height: `${timerProgress * 100}%` }}
+            transition={{ duration: 1, ease: "linear" }}
+          />
+        </div>
+      )}
       <div className="max-w-md mx-auto px-4 py-6 w-full flex-1 flex flex-col">
 
         {/* Header */}
