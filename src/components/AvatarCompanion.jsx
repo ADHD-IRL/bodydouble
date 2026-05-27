@@ -508,21 +508,12 @@ Keep both brief and task-focused. Sound like a real friend.`,
           Say something
         </button>
         <button
-          onClick={handleTalk}
-          className={`px-4 py-2 rounded-full text-sm transition-all flex items-center gap-1.5 ${
-            listening ? "bg-destructive text-destructive-foreground" : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
-          }`}
-        >
-          {listening ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-          {listening ? "Stop" : "Talk"}
-        </button>
-        <button
           onClick={() => setAiMode(v => !v)}
           className={`px-4 py-2 rounded-full text-sm transition-all ${
             aiMode ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
           }`}
         >
-          Talk to {avatar.name}
+          Ask {avatar.name}
         </button>
         {currentTask && (
           <button onClick={() => onStartTask(currentTask)} className="px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-all flex items-center gap-1">
