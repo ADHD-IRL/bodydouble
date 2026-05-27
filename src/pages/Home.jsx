@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import AvatarCompanion from "@/components/AvatarCompanion";
 import { Plus, Zap, List, ParkingSquare, X, BarChart2, Settings } from "lucide-react";
 import AddTaskForm from "@/components/AddTaskForm";
+import EnergyChart from "@/components/EnergyChart";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -169,6 +170,9 @@ export default function Home() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Energy chart */}
+        <EnergyChart />
 
         {/* Avatar Companion */}
         <div className="mb-8">
