@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, Plus, CheckCircle2, Circle, ArrowUpCircle, Clock, ParkingSquare } from "lucide-react";
+import { ArrowLeft, Plus, CheckCircle2, Circle, ParkingSquare, Crosshair } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import FocusMode from "@/components/FocusMode";
 
 const STATUS_OPTIONS = ["inbox", "today", "focus", "paused", "parked", "completed"];
 const STATUS_LABELS = {
@@ -31,6 +32,7 @@ export default function TaskList() {
   const [newTitle, setNewTitle] = useState("");
   const [newEnergy, setNewEnergy] = useState("");
   const [newLoad, setNewLoad] = useState("");
+  const [focusTask, setFocusTask] = useState(null);
 
   useEffect(() => {
     loadTasks();
@@ -63,6 +65,7 @@ export default function TaskList() {
   };
 
   const activeStatuses = ["inbox", "today", "focus", "paused"];
+  const topActiveTask = tasks.find(t => activeStatuses.includes(t.status));
   const filteredTasks = filter === "active"
     ? tasks.filter(t => activeStatuses.includes(t.status))
     : filter === "completed"
@@ -78,6 +81,7 @@ export default function TaskList() {
   }
 
   return (
+    <>
     <div className="min-h-screen bg-background">
       <div className="max-w-md mx-auto px-4 py-6 pb-24">
         {/* Header */}
@@ -91,12 +95,23 @@ export default function TaskList() {
               <p className="text-sm text-muted-foreground">{filteredTasks.length} item{filteredTasks.length !== 1 ? "s" : ""}</p>
             </div>
           </div>
-          <button
-            onClick={() => setShowAdd(v => !v)}
-            className="p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {topActiveTask && (
+              <button
+                onClick={() => setFocusTask(topActiveTask)}
+                title="Enter Focus Mode"
+                className="p-2 rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
+              >
+                <Crosshair className="w-5 h-5" />
+              </button>
+            )}
+            <button
+              onClick={() => setShowAdd(v => !v)}
+              className="p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Filter tabs */}
@@ -223,5 +238,23 @@ export default function TaskList() {
         )}
       </div>
     </div>
+
+    <AnimatePresence>
+      {focusTask && (
+        <FocusMode
+          task={focusTask}
+          onClose={() => setFocusTask(null)}
+          onComplete={() => {
+            handleStatusChange(focusTask, "completed");
+            setFocusTask(null);
+          }}
+          onPark={() => {
+            handleStatusChange(focusTask, "parked");
+            setFocusTask(null);
+          }}
+        />
+      )}
+    </AnimatePresence>
+    </>
   );
 }
