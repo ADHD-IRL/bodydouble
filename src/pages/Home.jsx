@@ -30,22 +30,25 @@ export default function Home() {
   const [newTaskLoad, setNewTaskLoad] = useState("");
   const [loading, setLoading] = useState(true);
   const [nudge, setNudge] = useState(null);
+  const [parkingReminder, setParkingReminder] = useState(null);
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
-    const [me, profiles, taskList, notifications] = await Promise.all([
+    const [me, profiles, taskList, nudges, reminders] = await Promise.all([
       base44.auth.me(),
       base44.entities.UserProfile.list(),
       base44.entities.Task.filter({ status: ["inbox", "today", "focus", "paused", "parked"] }),
       base44.entities.Notification.filter({ read: false, type: "nudge" }, "-created_date", 1),
+      base44.entities.Notification.filter({ read: false, type: "reminder" }, "-created_date", 1),
     ]);
     setUser(me);
     setProfile(profiles[0] || null);
     setTasks(taskList);
-    setNudge(notifications[0] || null);
+    setNudge(nudges[0] || null);
+    setParkingReminder(reminders[0] || null);
     setLoading(false);
   };
 
@@ -53,6 +56,13 @@ export default function Home() {
     if (nudge) {
       await base44.entities.Notification.update(nudge.id, { read: true });
       setNudge(null);
+    }
+  };
+
+  const dismissParkingReminder = async () => {
+    if (parkingReminder) {
+      await base44.entities.Notification.update(parkingReminder.id, { read: true });
+      setParkingReminder(null);
     }
   };
 
@@ -134,6 +144,29 @@ export default function Home() {
               <span className="text-lg shrink-0">☀️</span>
               <p className="text-sm text-amber-900 leading-relaxed flex-1">{nudge.message}</p>
               <button onClick={dismissNudge} className="text-amber-400 hover:text-amber-600 transition-colors shrink-0 mt-0.5">
+                <X className="w-4 h-4" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Parking Lot reminder banner */}
+        <AnimatePresence>
+          {parkingReminder && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="mb-3 bg-blue-50 border border-blue-200 rounded-2xl px-4 py-3 flex items-start gap-3"
+            >
+              <span className="text-lg shrink-0">🅿️</span>
+              <div className="flex-1">
+                <p className="text-sm text-blue-900 leading-relaxed">{parkingReminder.message}</p>
+                <Link to="/parking-lot" onClick={dismissParkingReminder} className="text-xs text-blue-600 font-medium hover:underline mt-1 inline-block">
+                  Go to Parking Lot →
+                </Link>
+              </div>
+              <button onClick={dismissParkingReminder} className="text-blue-300 hover:text-blue-500 transition-colors shrink-0 mt-0.5">
                 <X className="w-4 h-4" />
               </button>
             </motion.div>
