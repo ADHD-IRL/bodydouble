@@ -68,6 +68,10 @@ Respond ONLY as valid JSON: { "steps": ["step1", "step2", ...] }`,
     setEditText("");
   };
 
+  const handleDeleteStep = (id) => {
+    setSubSteps(prev => prev.filter(s => s.id !== id));
+  };
+
   const handleSave = async () => {
     if (!title.trim()) return;
     setSaving(true);
@@ -195,11 +199,16 @@ Respond ONLY as valid JSON: { "steps": ["step1", "step2", ...] }`,
                   </span>
                 )}
 
-                {/* Edit button */}
+                {/* Edit & delete buttons */}
                 {editingIndex !== step.id && step.accepted && (
-                  <button onClick={() => startEdit(step)} className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">
-                    <Pencil className="w-3 h-3" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button onClick={() => startEdit(step)} className="shrink-0 text-muted-foreground hover:text-foreground transition-colors">
+                      <Pencil className="w-3 h-3" />
+                    </button>
+                    <button onClick={() => handleDeleteStep(step.id)} className="shrink-0 text-muted-foreground hover:text-destructive transition-colors">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
                 )}
               </div>
             ))}
