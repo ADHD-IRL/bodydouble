@@ -58,8 +58,8 @@ export default function TaskList() {
   const handleStatusChange = async (task, newStatus) => {
     const data = { status: newStatus };
     if (newStatus === "completed") data.completed_at = new Date().toISOString();
-    await base44.entities.Task.update(task.id, data);
     setTasks(prev => prev.map(t => t.id === task.id ? { ...t, ...data } : t));
+    await base44.entities.Task.update(task.id, data);
   };
 
   const activeStatuses = ["inbox", "today", "focus", "paused"];
