@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import AvatarCompanion from "@/components/AvatarCompanion";
-import { Plus, Zap, List, ParkingSquare, X, BarChart2 } from "lucide-react";
+import { Plus, Zap, List, ParkingSquare, X, BarChart2, Settings } from "lucide-react";
 import AddTaskForm from "@/components/AddTaskForm";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -122,6 +122,9 @@ export default function Home() {
             </Link>
             <Link to="/weekly-recap" className="p-2 rounded-full hover:bg-muted transition-colors" title="Weekly Recap">
               <BarChart2 className="w-5 h-5 text-muted-foreground" />
+            </Link>
+            <Link to="/settings" className="p-2 rounded-full hover:bg-muted transition-colors" title="Settings">
+              <Settings className="w-5 h-5 text-muted-foreground" />
             </Link>
           </div>
         </div>

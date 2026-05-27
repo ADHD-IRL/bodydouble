@@ -12,6 +12,7 @@ import TaskList from './pages/TaskList';
 import ParkingLot from './pages/ParkingLot';
 import FocusSession from './pages/FocusSession';
 import WeeklyRecap from './pages/WeeklyRecap';
+import Settings from './pages/Settings';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -46,6 +47,7 @@ const AuthenticatedApp = () => {
       <Route path="/parking-lot" element={<ParkingLot />} />
       <Route path="/focus" element={<FocusSession />} />
       <Route path="/weekly-recap" element={<WeeklyRecap />} />
+      <Route path="/settings" element={<Settings />} />
       {/* Add your page Route elements here */}
       <Route path="*" element={<PageNotFound />} />
     </Routes>
