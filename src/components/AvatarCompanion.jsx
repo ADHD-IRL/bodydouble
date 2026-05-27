@@ -171,7 +171,7 @@ function buildTimerRecommendation(rec, onOpenTimer) {
   return { label: rec, action: () => onOpenTimer(secs) };
 }
 
-export default function AvatarCompanion({ tasks, profile, onUpdateProfile, onStartTask, onCapture, onTaskCompleted, onCreateTask }) {
+export default function AvatarCompanion({ tasks, profile, onUpdateProfile, onStartTask, onCapture, onTaskCompleted, onCreateTask, navigate }) {
   const avatarId = profile?.companion_avatar || "plant";
   const voiceOn = profile?.companion_voice_on || false;
   const avatar = AVATARS.find(a => a.id === avatarId) || AVATARS[0];

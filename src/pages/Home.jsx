@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import AvatarCompanion from "@/components/AvatarCompanion";
 import { Plus, Settings, Zap, List, ParkingSquare } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 const STATUS_LABELS = {
@@ -20,6 +20,7 @@ const ENERGY_COLORS = {
 };
 
 export default function Home() {
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
   const [profile, setProfile] = useState(null);
   const [user, setUser] = useState(null);
@@ -55,9 +56,8 @@ export default function Home() {
     }
   };
 
-  const handleStartTask = async (task) => {
-    const updated = await base44.entities.Task.update(task.id, { status: "focus", last_opened_at: new Date().toISOString() });
-    setTasks(prev => prev.map(t => t.id === task.id ? { ...t, ...updated } : t));
+  const handleStartTask = (task) => {
+    navigate("/focus", { state: { task, profile } });
   };
 
   const handleTaskCompleted = () => {
@@ -230,29 +230,38 @@ export default function Home() {
   );
 }
 
+const LOAD_COLORS = {
+  low: "bg-sky-100 text-sky-700",
+  medium: "bg-orange-100 text-orange-700",
+  high: "bg-rose-100 text-rose-700",
+};
+
 function TaskCard({ task, onStart, onUpdate }) {
   return (
     <div className="bg-card border border-border/60 rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-foreground truncate">{task.title}</p>
-        <div className="flex items-center gap-2 mt-1">
+        <div className="flex items-center flex-wrap gap-1.5 mt-1">
           <span className="text-xs text-muted-foreground">{STATUS_LABELS[task.status] || task.status}</span>
           {task.energy_required && (
             <span className={`text-xs px-1.5 py-0.5 rounded-full ${ENERGY_COLORS[task.energy_required]}`}>
-              {task.energy_required}
+              ⚡ {task.energy_required}
+            </span>
+          )}
+          {task.emotional_load && (
+            <span className={`text-xs px-1.5 py-0.5 rounded-full ${LOAD_COLORS[task.emotional_load]}`}>
+              💭 {task.emotional_load}
             </span>
           )}
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        {task.status !== "focus" && (
-          <button
-            onClick={() => onStart(task)}
-            className="text-xs px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium"
-          >
-            Start
-          </button>
-        )}
+        <button
+          onClick={() => onStart(task)}
+          className="text-xs px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium"
+        >
+          {task.status === "focus" ? "Continue" : "Start"}
+        </button>
         <button
           onClick={() => onUpdate(task.id, { status: "completed", completed_at: new Date().toISOString() })}
           className="text-xs px-3 py-1.5 rounded-full bg-muted text-muted-foreground hover:bg-accent transition-colors"

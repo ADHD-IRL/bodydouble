@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import QuickCapture from './pages/QuickCapture';
 import TaskList from './pages/TaskList';
 import ParkingLot from './pages/ParkingLot';
+import FocusSession from './pages/FocusSession';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -42,6 +43,7 @@ const AuthenticatedApp = () => {
       <Route path="/capture" element={<QuickCapture />} />
       <Route path="/tasks" element={<TaskList />} />
       <Route path="/parking-lot" element={<ParkingLot />} />
+      <Route path="/focus" element={<FocusSession />} />
       {/* Add your page Route elements here */}
       <Route path="*" element={<PageNotFound />} />
     </Routes>
