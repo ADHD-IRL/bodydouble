@@ -190,7 +190,7 @@ export default function TaskList() {
                       <ParkingSquare className="w-4 h-4" />
                     </button>
                   )}
-                  {!["completed", "good_enough_done"].includes(task.status) && (
+                  {!["completed", "good_enough_done"].includes(task.status) ? (
                     <button
                       onClick={() => handleStatusChange(task, "completed")}
                       className="shrink-0 p-1.5 rounded-full transition-all hover:bg-green-50"
@@ -198,9 +198,14 @@ export default function TaskList() {
                     >
                       <Circle className="w-5 h-5 text-muted-foreground hover:text-green-500" />
                     </button>
-                  )}
-                  {["completed", "good_enough_done"].includes(task.status) && (
-                    <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mx-1.5" />
+                  ) : (
+                    <button
+                      onClick={() => handleStatusChange(task, "inbox")}
+                      className="shrink-0 p-1.5 rounded-full transition-all hover:bg-muted"
+                      title="Make active again"
+                    >
+                      <CheckCircle2 className="w-5 h-5 text-green-500 hover:text-muted-foreground" />
+                    </button>
                   )}
                 </div>
               </motion.div>
