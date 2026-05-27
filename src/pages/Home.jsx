@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import AvatarCompanion from "@/components/AvatarCompanion";
 import { Plus, Zap, List, ParkingSquare, X } from "lucide-react";
+import AddTaskForm from "@/components/AddTaskForm";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -25,9 +26,7 @@ export default function Home() {
   const [profile, setProfile] = useState(null);
   const [user, setUser] = useState(null);
   const [showAddTask, setShowAddTask] = useState(false);
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskEnergy, setNewTaskEnergy] = useState("");
-  const [newTaskLoad, setNewTaskLoad] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [nudge, setNudge] = useState(null);
   const [parkingReminder, setParkingReminder] = useState(null);
@@ -84,16 +83,8 @@ export default function Home() {
     loadData();
   };
 
-  const handleCreateTask = async () => {
-    if (!newTaskTitle.trim()) return;
-    const taskData = { title: newTaskTitle.trim(), status: "inbox" };
-    if (newTaskEnergy) taskData.energy_required = newTaskEnergy;
-    if (newTaskLoad) taskData.emotional_load = newTaskLoad;
-    const created = await base44.entities.Task.create(taskData);
+  const handleTaskCreated = (created) => {
     setTasks(prev => [...prev, created]);
-    setNewTaskTitle("");
-    setNewTaskEnergy("");
-    setNewTaskLoad("");
     setShowAddTask(false);
   };
 
@@ -189,53 +180,7 @@ export default function Home() {
         {/* Add Task inline */}
         <AnimatePresence>
           {showAddTask && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="mb-4 bg-card border border-border/60 rounded-2xl px-4 py-3 space-y-3"
-            >
-              <div className="flex gap-2">
-                <input
-                  autoFocus
-                  value={newTaskTitle}
-                  onChange={e => setNewTaskTitle(e.target.value)}
-                  onKeyDown={e => { if (e.key === "Enter") handleCreateTask(); if (e.key === "Escape") setShowAddTask(false); }}
-                  placeholder="What do you need to do?"
-                  className="flex-1 bg-background border border-border/60 rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50"
-                />
-                <button onClick={handleCreateTask} disabled={!newTaskTitle.trim()} className="bg-primary text-primary-foreground rounded-xl px-4 py-2 text-sm font-medium disabled:opacity-50 shrink-0">
-                  Add
-                </button>
-                <button onClick={() => setShowAddTask(false)} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
-                  <Plus className="w-5 h-5 rotate-45" />
-                </button>
-              </div>
-              <div className="space-y-2">
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium mb-1.5">⚡ Energy required</p>
-                  <div className="flex gap-1.5">
-                    {[{v:"low",l:"🟢 Low"},{v:"medium",l:"🟡 Medium"},{v:"high",l:"🔴 High"}].map(o => (
-                      <button key={o.v} type="button" onClick={() => setNewTaskEnergy(e => e === o.v ? "" : o.v)}
-                        className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${newTaskEnergy === o.v ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent"}`}>
-                        {o.l}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground font-medium mb-1.5">💭 Emotional load</p>
-                  <div className="flex gap-1.5">
-                    {[{v:"low",l:"😌 Calm"},{v:"medium",l:"😬 Medium"},{v:"high",l:"😰 Heavy"}].map(o => (
-                      <button key={o.v} type="button" onClick={() => setNewTaskLoad(e => e === o.v ? "" : o.v)}
-                        className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${newTaskLoad === o.v ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent"}`}>
-                        {o.l}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            <AddTaskForm onCreated={handleTaskCreated} onClose={() => setShowAddTask(false)} />
           )}
         </AnimatePresence>
 
