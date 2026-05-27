@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import AvatarCompanion from "@/components/AvatarCompanion";
-import { Plus, Settings, Zap, List, ParkingSquare } from "lucide-react";
+import { Plus, Zap, List, ParkingSquare, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -29,21 +29,31 @@ export default function Home() {
   const [newTaskEnergy, setNewTaskEnergy] = useState("");
   const [newTaskLoad, setNewTaskLoad] = useState("");
   const [loading, setLoading] = useState(true);
+  const [nudge, setNudge] = useState(null);
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
-    const [me, profiles, taskList] = await Promise.all([
+    const [me, profiles, taskList, notifications] = await Promise.all([
       base44.auth.me(),
       base44.entities.UserProfile.list(),
       base44.entities.Task.filter({ status: ["inbox", "today", "focus", "paused", "parked"] }),
+      base44.entities.Notification.filter({ read: false, type: "nudge" }, "-created_date", 1),
     ]);
     setUser(me);
     setProfile(profiles[0] || null);
     setTasks(taskList);
+    setNudge(notifications[0] || null);
     setLoading(false);
+  };
+
+  const dismissNudge = async () => {
+    if (nudge) {
+      await base44.entities.Notification.update(nudge.id, { read: true });
+      setNudge(null);
+    }
   };
 
   const handleUpdateProfile = async (updates) => {
@@ -111,6 +121,24 @@ export default function Home() {
             </Link>
           </div>
         </div>
+
+        {/* Morning nudge banner */}
+        <AnimatePresence>
+          {nudge && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="mb-5 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 flex items-start gap-3"
+            >
+              <span className="text-lg shrink-0">☀️</span>
+              <p className="text-sm text-amber-900 leading-relaxed flex-1">{nudge.message}</p>
+              <button onClick={dismissNudge} className="text-amber-400 hover:text-amber-600 transition-colors shrink-0 mt-0.5">
+                <X className="w-4 h-4" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Avatar Companion */}
         <div className="mb-8">
