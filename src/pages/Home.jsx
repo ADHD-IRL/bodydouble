@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import AvatarCompanion from "@/components/AvatarCompanion";
-import { Plus, Settings } from "lucide-react";
+import { Plus, Settings, Zap, List, ParkingSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -92,9 +92,17 @@ export default function Home() {
               <p className="text-sm text-muted-foreground">Hi, {profile.display_name.split(" ")[0]}</p>
             )}
           </div>
-          <Link to="/settings" className="p-2 rounded-full hover:bg-muted transition-colors">
-            <Settings className="w-5 h-5 text-muted-foreground" />
-          </Link>
+          <div className="flex items-center gap-1">
+            <Link to="/capture" className="p-2 rounded-full hover:bg-muted transition-colors" title="Quick Capture">
+              <Zap className="w-5 h-5 text-muted-foreground" />
+            </Link>
+            <Link to="/tasks" className="p-2 rounded-full hover:bg-muted transition-colors" title="Task List">
+              <List className="w-5 h-5 text-muted-foreground" />
+            </Link>
+            <Link to="/parking-lot" className="p-2 rounded-full hover:bg-muted transition-colors" title="Parking Lot">
+              <ParkingSquare className="w-5 h-5 text-muted-foreground" />
+            </Link>
+          </div>
         </div>
 
         {/* Avatar Companion */}
