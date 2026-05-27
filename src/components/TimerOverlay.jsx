@@ -73,14 +73,14 @@ export default function TimerOverlay({ open, onClose, initialSeconds = 120 }) {
           exit={{ opacity: 0, scale: 0.95 }}
           className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
         >
-          <div className="bg-card border border-border rounded-3xl p-6 shadow-xl flex flex-col items-center gap-5 w-80">
+          <div className="bg-secondary/40 border border-border/30 rounded-3xl p-6 shadow-sm flex flex-col items-center gap-5 w-80">
             {/* Close */}
-            <button onClick={onClose} className="self-end text-muted-foreground hover:text-foreground">
+            <button onClick={onClose} className="self-end text-muted-foreground hover:text-foreground transition-colors">
               <X className="w-5 h-5" />
             </button>
 
             {/* Time display */}
-            <p className="text-6xl font-mono font-bold tracking-tight">{mins}:{secs}</p>
+            <p className="text-6xl font-light tracking-wide text-foreground">{mins}:{secs}</p>
 
             {/* Preset pills */}
             {!started && (
