@@ -7,6 +7,7 @@ export default function AddTaskForm({ onCreated, onClose }) {
   const [title, setTitle] = useState("");
   const [energy, setEnergy] = useState("");
   const [load, setLoad] = useState("");
+  const [timeEstimate, setTimeEstimate] = useState("");
 
   // Sub-step flow
   const [subSteps, setSubSteps] = useState(null); // null = not yet generated
@@ -78,6 +79,7 @@ Respond ONLY as valid JSON: { "steps": ["step1", "step2", ...] }`,
     const taskData = { title: title.trim(), status: "inbox" };
     if (energy) taskData.energy_required = energy;
     if (load) taskData.emotional_load = load;
+    if (timeEstimate) taskData.time_estimate_minutes = parseInt(timeEstimate);
     const created = await base44.entities.Task.create(taskData);
 
     const accepted = (subSteps || []).filter(s => s.accepted && s.text.trim());
@@ -126,6 +128,17 @@ Respond ONLY as valid JSON: { "steps": ["step1", "step2", ...] }`,
             {[{ v: "low", l: "🟢 Low" }, { v: "medium", l: "🟡 Medium" }, { v: "high", l: "🔴 High" }].map(o => (
               <button key={o.v} type="button" onClick={() => setEnergy(e => e === o.v ? "" : o.v)}
                 className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${energy === o.v ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent"}`}>
+                {o.l}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground font-medium mb-1.5">⏱ Time to complete</p>
+          <div className="flex gap-1.5 flex-wrap">
+            {[{ v: "5", l: "5 min" }, { v: "15", l: "15 min" }, { v: "30", l: "30 min" }, { v: "60", l: "1 hr" }, { v: "120", l: "2 hr+" }].map(o => (
+              <button key={o.v} type="button" onClick={() => setTimeEstimate(e => e === o.v ? "" : o.v)}
+                className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${timeEstimate === o.v ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent"}`}>
                 {o.l}
               </button>
             ))}
