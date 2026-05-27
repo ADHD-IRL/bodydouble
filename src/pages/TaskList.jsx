@@ -29,6 +29,8 @@ export default function TaskList() {
   const [filter, setFilter] = useState("active");
   const [showAdd, setShowAdd] = useState(false);
   const [newTitle, setNewTitle] = useState("");
+  const [newEnergy, setNewEnergy] = useState("");
+  const [newLoad, setNewLoad] = useState("");
 
   useEffect(() => {
     loadTasks();
@@ -42,9 +44,14 @@ export default function TaskList() {
 
   const handleCreate = async () => {
     if (!newTitle.trim()) return;
-    const created = await base44.entities.Task.create({ title: newTitle.trim(), status: "inbox" });
+    const taskData = { title: newTitle.trim(), status: "inbox" };
+    if (newEnergy) taskData.energy_required = newEnergy;
+    if (newLoad) taskData.emotional_load = newLoad;
+    const created = await base44.entities.Task.create(taskData);
     setTasks(prev => [created, ...prev]);
     setNewTitle("");
+    setNewEnergy("");
+    setNewLoad("");
     setShowAdd(false);
   };
 
@@ -114,19 +121,45 @@ export default function TaskList() {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="mb-4 flex gap-2"
+              className="mb-4 bg-card border border-border/60 rounded-2xl px-4 py-3 space-y-3"
             >
-              <input
-                autoFocus
-                value={newTitle}
-                onChange={e => setNewTitle(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter") handleCreate(); if (e.key === "Escape") setShowAdd(false); }}
-                placeholder="Add a task..."
-                className="flex-1 bg-card border border-border/60 rounded-2xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50"
-              />
-              <button onClick={handleCreate} disabled={!newTitle.trim()} className="bg-primary text-primary-foreground rounded-2xl px-4 py-3 text-sm font-medium disabled:opacity-50">
-                Add
-              </button>
+              <div className="flex gap-2">
+                <input
+                  autoFocus
+                  value={newTitle}
+                  onChange={e => setNewTitle(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") handleCreate(); if (e.key === "Escape") setShowAdd(false); }}
+                  placeholder="Add a task..."
+                  className="flex-1 bg-background border border-border/60 rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50"
+                />
+                <button onClick={handleCreate} disabled={!newTitle.trim()} className="bg-primary text-primary-foreground rounded-xl px-4 py-2 text-sm font-medium disabled:opacity-50 shrink-0">
+                  Add
+                </button>
+              </div>
+              <div className="space-y-2">
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium mb-1.5">⚡ Energy required</p>
+                  <div className="flex gap-1.5">
+                    {[{v:"low",l:"🟢 Low"},{v:"medium",l:"🟡 Medium"},{v:"high",l:"🔴 High"}].map(o => (
+                      <button key={o.v} type="button" onClick={() => setNewEnergy(e => e === o.v ? "" : o.v)}
+                        className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${newEnergy === o.v ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent"}`}>
+                        {o.l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium mb-1.5">💭 Emotional load</p>
+                  <div className="flex gap-1.5">
+                    {[{v:"low",l:"😌 Calm"},{v:"medium",l:"😬 Medium"},{v:"high",l:"😰 Heavy"}].map(o => (
+                      <button key={o.v} type="button" onClick={() => setNewLoad(e => e === o.v ? "" : o.v)}
+                        className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${newLoad === o.v ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent"}`}>
+                        {o.l}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

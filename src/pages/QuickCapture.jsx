@@ -4,11 +4,70 @@ import { ArrowLeft, Plus, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
+const ENERGY_OPTIONS = [
+  { value: "low", label: "🟢 Low", desc: "Easy, low stakes" },
+  { value: "medium", label: "🟡 Medium", desc: "Requires some focus" },
+  { value: "high", label: "🔴 High", desc: "Heavy or draining" },
+];
+const LOAD_OPTIONS = [
+  { value: "low", label: "😌 Calm", desc: "No emotional weight" },
+  { value: "medium", label: "😬 Medium", desc: "A bit uncomfortable" },
+  { value: "high", label: "😰 Heavy", desc: "Emotionally taxing" },
+];
+
+function TaskTagSelector({ energy, onEnergy, load, onLoad }) {
+  return (
+    <div className="mt-3 space-y-2">
+      <div>
+        <p className="text-xs text-muted-foreground font-medium mb-1.5">⚡ Energy required</p>
+        <div className="flex gap-1.5">
+          {ENERGY_OPTIONS.map(o => (
+            <button
+              key={o.value}
+              type="button"
+              onClick={() => onEnergy(energy === o.value ? "" : o.value)}
+              className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${
+                energy === o.value
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-accent"
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="text-xs text-muted-foreground font-medium mb-1.5">💭 Emotional load</p>
+        <div className="flex gap-1.5">
+          {LOAD_OPTIONS.map(o => (
+            <button
+              key={o.value}
+              type="button"
+              onClick={() => onLoad(load === o.value ? "" : o.value)}
+              className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${
+                load === o.value
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-accent"
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function QuickCapture() {
   const [text, setText] = useState("");
   const [saved, setSaved] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
+  const [promotingId, setPromotingId] = useState(null);
+  const [tagEnergy, setTagEnergy] = useState("");
+  const [tagLoad, setTagLoad] = useState("");
 
   const handleCapture = async () => {
     if (!text.trim()) return;
@@ -22,9 +81,15 @@ export default function QuickCapture() {
   };
 
   const handlePromoteToTask = async (thought) => {
-    await base44.entities.Task.create({ title: thought.text, status: "inbox" });
+    const taskData = { title: thought.text, status: "inbox" };
+    if (tagEnergy) taskData.energy_required = tagEnergy;
+    if (tagLoad) taskData.emotional_load = tagLoad;
+    await base44.entities.Task.create(taskData);
     await base44.entities.QuickThought.update(thought.id, { category: "task" });
     setSaved(prev => prev.filter(t => t.id !== thought.id));
+    setPromotingId(null);
+    setTagEnergy("");
+    setTagLoad("");
   };
 
   const handlePark = async (thought) => {
@@ -102,20 +167,43 @@ export default function QuickCapture() {
                     className="bg-card border border-border/60 rounded-2xl px-4 py-3"
                   >
                     <p className="text-sm text-foreground mb-2">{thought.text}</p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handlePromoteToTask(thought)}
-                        className="text-xs px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium"
-                      >
-                        + Task
-                      </button>
-                      <button
-                        onClick={() => handlePark(thought)}
-                        className="text-xs px-3 py-1.5 rounded-full bg-muted text-muted-foreground hover:bg-accent transition-colors"
-                      >
-                        Park it
-                      </button>
-                    </div>
+                    {promotingId === thought.id ? (
+                      <div>
+                        <TaskTagSelector
+                          energy={tagEnergy} onEnergy={setTagEnergy}
+                          load={tagLoad} onLoad={setTagLoad}
+                        />
+                        <div className="flex gap-2 mt-3">
+                          <button
+                            onClick={() => handlePromoteToTask(thought)}
+                            className="text-xs px-3 py-1.5 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+                          >
+                            Save as Task
+                          </button>
+                          <button
+                            onClick={() => { setPromotingId(null); setTagEnergy(""); setTagLoad(""); }}
+                            className="text-xs px-3 py-1.5 rounded-full bg-muted text-muted-foreground hover:bg-accent transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setPromotingId(thought.id)}
+                          className="text-xs px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium"
+                        >
+                          + Task
+                        </button>
+                        <button
+                          onClick={() => handlePark(thought)}
+                          className="text-xs px-3 py-1.5 rounded-full bg-muted text-muted-foreground hover:bg-accent transition-colors"
+                        >
+                          Park it
+                        </button>
+                      </div>
+                    )}
                   </motion.div>
                 ))}
               </AnimatePresence>

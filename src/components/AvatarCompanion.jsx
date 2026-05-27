@@ -214,7 +214,10 @@ export default function AvatarCompanion({ tasks, profile, onUpdateProfile, onSta
     const taskContext = tasks
       .filter(t => ["today", "focus", "paused", "inbox"].includes(t.status))
       .slice(0, 8)
-      .map((t, i) => `${i + 1}. ${t.title} (${t.status})`)
+      .map((t, i) => {
+        const tags = [t.energy_required && `energy:${t.energy_required}`, t.emotional_load && `load:${t.emotional_load}`].filter(Boolean).join(", ");
+        return `${i + 1}. ${t.title} (${t.status}${tags ? ` | ${tags}` : ""})`;
+      })
       .join("\n");
 
     const isFirstNudge = !hasNudgedOnce;
@@ -227,19 +230,23 @@ export default function AvatarCompanion({ tasks, profile, onUpdateProfile, onSta
 The user's tasks right now:
 ${taskContext || "Nothing on the list yet"}
 
-Look at what they need to do and respond with genuine, gentle encouragement. Start by acknowledging their list (it's okay if it's empty or full). Then ask which task feels most doable right now, or suggest the one that would free up mental space first.
+Tasks may have energy_required (low/medium/high) and emotional_load (low/medium/high) tags. Use these to suggest an appropriate warm-up if the next task is high-energy or emotionally heavy — e.g. a 2-minute grounding breath, a stretch, writing one sentence, or drinking water first.
+
+Look at what they need to do and respond with genuine, gentle encouragement. Acknowledge their list, then suggest the most doable task AND (if it's medium/high energy or load) a brief warm-up exercise to ease into it.
 
 Respond ONLY as valid JSON: {"question": "...", "recommendation": "..."}
-"question": warm, focused on their tasks — under 50 words.
+"question": warm, task-focused — under 50 words. Include a warm-up tip if relevant.
 "recommendation": the single most important task to start with (task name only).`
           : `You are ${avatar.name}, a warm and grounded human companion helping someone with ADHD stay on track.
 The user's tasks right now:
 ${taskContext || "Nothing on the list yet"}
 
-The user just shared something with you. Respond warmly and briefly, then connect it back to what they're trying to accomplish today. Ask one simple question focused on moving a task forward.
+Tasks may have energy_required and emotional_load tags. If the next task is demanding, suggest a short warm-up (breath, shake out hands, drink water, etc.) before diving in.
+
+Respond warmly and briefly, then connect it back to their tasks. Ask one simple question focused on moving forward.
 
 Respond ONLY as valid JSON: {"question": "...", "recommendation": "..."}
-"question": acknowledge their words + 1 task-focused question (under 30 words).
+"question": acknowledge + 1 task-focused question with warm-up tip if needed (under 35 words).
 "recommendation": if relevant, suggest a small concrete action on a specific task.`,
         response_json_schema: {
           type: "object",
@@ -322,7 +329,10 @@ Respond ONLY as valid JSON: {"question": "...", "recommendation": "..."}
     const taskContext = tasks
       .filter(t => ["today", "focus", "paused", "inbox"].includes(t.status))
       .slice(0, 5)
-      .map(t => `- ${t.title} (${t.status})`)
+      .map(t => {
+        const tags = [t.energy_required && `energy:${t.energy_required}`, t.emotional_load && `load:${t.emotional_load}`].filter(Boolean).join(", ");
+        return `- ${t.title} (${t.status}${tags ? ` | ${tags}` : ""})`;
+      })
       .join("\n");
 
     const conversationContext = lastQuestion
