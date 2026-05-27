@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, Plus, CheckCircle2, Circle, ArrowUpCircle, Clock, Filter } from "lucide-react";
+import { ArrowLeft, Plus, CheckCircle2, Circle, ArrowUpCircle, Clock, ParkingSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -192,15 +192,9 @@ export default function TaskList() {
                       {task.title}
                     </p>
                     <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                      <select
-                        value={task.status}
-                        onChange={e => handleStatusChange(task, e.target.value)}
-                        className={`text-xs px-2 py-0.5 rounded-full border-0 font-medium cursor-pointer outline-none ${STATUS_COLORS[task.status] || "bg-muted text-muted-foreground"}`}
-                      >
-                        {STATUS_OPTIONS.map(s => (
-                          <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-                        ))}
-                      </select>
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[task.status] || "bg-muted text-muted-foreground"}`}>
+                        {STATUS_LABELS[task.status] || task.status}
+                      </span>
                       {task.energy_required && (
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ENERGY_COLORS[task.energy_required]}`}>
                           {task.energy_required}
@@ -214,6 +208,16 @@ export default function TaskList() {
                       )}
                     </div>
                   </div>
+                  {/* Action icons */}
+                  {!["completed", "good_enough_done", "parked"].includes(task.status) && (
+                    <button
+                      onClick={() => handleStatusChange(task, "parked")}
+                      title="Move to Parking Lot"
+                      className="shrink-0 p-1.5 rounded-full text-muted-foreground hover:text-orange-500 hover:bg-orange-50 transition-all"
+                    >
+                      <ParkingSquare className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </motion.div>
             ))}
