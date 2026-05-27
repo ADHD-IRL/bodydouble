@@ -62,12 +62,12 @@ export default function TaskList() {
     setTasks(prev => prev.map(t => t.id === task.id ? { ...t, ...data } : t));
   };
 
-  const activeStatuses = ["inbox", "today", "focus", "paused", "parked"];
+  const activeStatuses = ["inbox", "today", "focus", "paused"];
   const filteredTasks = filter === "active"
     ? tasks.filter(t => activeStatuses.includes(t.status))
     : filter === "completed"
     ? tasks.filter(t => ["completed", "good_enough_done"].includes(t.status))
-    : tasks;
+    : tasks.filter(t => t.status !== "parked");
 
   if (loading) {
     return (
@@ -175,41 +175,13 @@ export default function TaskList() {
                 exit={{ opacity: 0, x: -20 }}
                 className="bg-card border border-border/60 rounded-2xl px-4 py-3"
               >
-                <div className="flex items-start gap-3">
-                  <button
-                    onClick={() => handleStatusChange(task, task.status === "completed" ? "inbox" : "completed")}
-                    className="mt-0.5 shrink-0"
-                  >
-                    {["completed", "good_enough_done"].includes(task.status)
-                      ? <CheckCircle2 className="w-5 h-5 text-green-500" />
-                      : task.status === "focus"
-                      ? <ArrowUpCircle className="w-5 h-5 text-purple-500" />
-                      : <Circle className="w-5 h-5 text-muted-foreground" />
-                    }
-                  </button>
+                <div className="flex items-center gap-3">
                   <div className="flex-1 min-w-0">
                     <p className={`text-sm font-medium ${["completed", "good_enough_done"].includes(task.status) ? "line-through text-muted-foreground" : "text-foreground"}`}>
                       {task.title}
                     </p>
-                    <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[task.status] || "bg-muted text-muted-foreground"}`}>
-                        {STATUS_LABELS[task.status] || task.status}
-                      </span>
-                      {task.energy_required && (
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ENERGY_COLORS[task.energy_required]}`}>
-                          {task.energy_required}
-                        </span>
-                      )}
-                      {task.deadline && (
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {new Date(task.deadline).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
                   </div>
-                  {/* Action icons */}
-                  {!["completed", "good_enough_done", "parked"].includes(task.status) && (
+                  {!["completed", "good_enough_done"].includes(task.status) && (
                     <button
                       onClick={() => handleStatusChange(task, "parked")}
                       title="Move to Parking Lot"
@@ -218,6 +190,16 @@ export default function TaskList() {
                       <ParkingSquare className="w-4 h-4" />
                     </button>
                   )}
+                  <button
+                    onClick={() => handleStatusChange(task, ["completed", "good_enough_done"].includes(task.status) ? "inbox" : "completed")}
+                    className="shrink-0 p-1.5 rounded-full transition-all hover:bg-green-50"
+                    title="Mark complete"
+                  >
+                    {["completed", "good_enough_done"].includes(task.status)
+                      ? <CheckCircle2 className="w-5 h-5 text-green-500" />
+                      : <Circle className="w-5 h-5 text-muted-foreground hover:text-green-500" />
+                    }
+                  </button>
                 </div>
               </motion.div>
             ))}
