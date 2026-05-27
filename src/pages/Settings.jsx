@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, Check, Volume2, VolumeX, Play, Loader2 } from "lucide-react";
+import { ArrowLeft, Check, Play, Loader2, RefreshCw, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AVATARS } from "@/components/AvatarCompanion";
 import { motion } from "framer-motion";
@@ -31,6 +31,9 @@ export default function Settings() {
   const [voicePitch, setVoicePitch] = useState(1.0);
   const [availableVoices, setAvailableVoices] = useState([]);
   const [testingVoice, setTestingVoice] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetDone, setResetDone] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -83,6 +86,24 @@ export default function Settings() {
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleResetDay = async () => {
+    setResetting(true);
+    // Find all active/today/focus/paused tasks
+    const tasks = await base44.entities.Task.filter({ status: ["today", "focus", "paused", "inbox"] });
+    const unfinished = tasks.filter(t => ["today", "focus", "paused"].includes(t.status));
+    // Move each to parked + create a ParkedThought entry
+    await Promise.all(unfinished.map(t =>
+      Promise.all([
+        base44.entities.Task.update(t.id, { status: "parked" }),
+        base44.entities.ParkedThought.create({ text: t.title, type: "task", linked_task_id: t.id, urgency_guess: "low" }),
+      ])
+    ));
+    setResetting(false);
+    setResetDone(true);
+    setConfirmReset(false);
+    setTimeout(() => setResetDone(false), 3000);
   };
 
   const testVoice = () => {
@@ -267,6 +288,41 @@ export default function Settings() {
                   {testingVoice ? "Playing…" : "Test voice"}
                 </button>
               </motion.div>
+            )}
+          </section>
+
+          {/* Reset Day */}
+          <section>
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Hard day reset</h2>
+            <p className="text-xs text-muted-foreground mb-3">Moves all active & today tasks to the Parking Lot so you can start fresh without losing anything.</p>
+            {!confirmReset ? (
+              <button
+                onClick={() => setConfirmReset(true)}
+                className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-border/60 bg-card text-sm text-muted-foreground hover:border-destructive/40 hover:text-destructive transition-all w-full"
+              >
+                <RefreshCw className="w-4 h-4 shrink-0" />
+                Reset my day
+              </button>
+            ) : (
+              <div className="bg-destructive/5 border border-destructive/20 rounded-xl px-4 py-4 space-y-3">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                  <p className="text-sm text-foreground">This will move all your active tasks to the Parking Lot. Nothing gets deleted. Continue?</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleResetDay}
+                    disabled={resetting}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-destructive text-destructive-foreground text-sm font-medium disabled:opacity-60"
+                  >
+                    {resetting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : resetDone ? <Check className="w-3.5 h-3.5" /> : null}
+                    {resetting ? "Resetting…" : resetDone ? "Done!" : "Yes, reset my day"}
+                  </button>
+                  <button onClick={() => setConfirmReset(false)} className="px-4 py-2 rounded-xl bg-muted text-muted-foreground text-sm hover:bg-accent transition-all">
+                    Cancel
+                  </button>
+                </div>
+              </div>
             )}
           </section>
 
