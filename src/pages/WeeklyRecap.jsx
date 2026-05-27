@@ -32,6 +32,7 @@ export default function WeeklyRecap() {
   const [completedTasks, setCompletedTasks] = useState([]);
   const [parkedThoughts, setParkedThoughts] = useState([]);
   const [upcomingTasks, setUpcomingTasks] = useState([]);
+  const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [aiSummary, setAiSummary] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
@@ -45,9 +46,10 @@ export default function WeeklyRecap() {
   }, []);
 
   const loadData = async () => {
-    const [allTasks, thoughts] = await Promise.all([
+    const [allTasks, thoughts, allSessions] = await Promise.all([
       base44.entities.Task.list("-updated_date", 200),
       base44.entities.ParkedThought.filter({ reviewed: false }, "-created_date", 50),
+      base44.entities.TaskSession.list("-created_date", 100),
     ]);
 
     const done = allTasks.filter(t => {
@@ -62,9 +64,15 @@ export default function WeeklyRecap() {
       ["inbox", "today", "paused"].includes(t.status)
     ).slice(0, 8);
 
+    const weeklySessions = allSessions.filter(s => {
+      const ts = s.created_date ? new Date(s.created_date) : null;
+      return ts && ts >= start && ts <= end && s.mood_after;
+    });
+
     setCompletedTasks(done);
     setParkedThoughts(thoughts);
     setUpcomingTasks(upcoming);
+    setSessions(weeklySessions);
     setLoading(false);
   };
 
@@ -176,6 +184,42 @@ Respond ONLY as valid JSON:
             </button>
           </motion.div>
         )}
+
+        {/* Mood energy breakdown */}
+        {sessions.length > 0 && (() => {
+          const MOODS = [
+            { v: "energized", l: "⚡", label: "Energized" },
+            { v: "good",      l: "😊", label: "Good" },
+            { v: "okay",      l: "🙂", label: "Okay" },
+            { v: "neutral",   l: "😐", label: "Neutral" },
+            { v: "drained",   l: "😮‍💨", label: "Drained" },
+          ];
+          const counts = {};
+          sessions.forEach(s => { counts[s.mood_after] = (counts[s.mood_after] || 0) + 1; });
+          const energizing = sessions.filter(s => ["energized", "good"].includes(s.mood_after)).length;
+          const draining = sessions.filter(s => ["drained", "neutral"].includes(s.mood_after)).length;
+          return (
+            <div className="mb-5 bg-card border border-border/60 rounded-2xl px-4 py-4">
+              <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">😊 Mood after tasks</h2>
+              <div className="flex gap-2 mb-3">
+                {MOODS.map(m => counts[m.v] ? (
+                  <div key={m.v} className="flex flex-col items-center gap-1">
+                    <span className="text-xl">{m.l}</span>
+                    <span className="text-xs font-semibold text-foreground">{counts[m.v]}</span>
+                    <span className="text-[10px] text-muted-foreground">{m.label}</span>
+                  </div>
+                ) : null)}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {energizing > draining
+                  ? `Most tasks left you feeling good this week (${energizing} energizing vs ${draining} draining). 🌟`
+                  : draining > energizing
+                  ? `A lot of tasks felt draining this week (${draining} draining vs ${energizing} energizing). Be gentle with yourself.`
+                  : `Mixed energy this week — ${sessions.length} task${sessions.length > 1 ? "s" : ""} logged.`}
+              </p>
+            </div>
+          );
+        })()}
 
         {/* Completed this week */}
         <div className="mb-5">

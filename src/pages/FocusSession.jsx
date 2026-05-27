@@ -57,6 +57,7 @@ export default function FocusSession() {
   const [urge, setUrge] = useState(null);
   const [completionState, setCompletionState] = useState(null);
   const [futureNote, setFutureNote] = useState("");
+  const [moodAfter, setMoodAfter] = useState(null);
   const [debriefDone, setDebriefDone] = useState(false);
 
   const { seconds, display, reset } = useTimer(timerMins * 60, timerRunning);
@@ -145,6 +146,7 @@ Give a single short sentence of warm encouragement to start. Max 20 words. Sound
         parked_thoughts_count: parkedCount,
         completion_state: completionState || "completed",
         future_you_note: futureNote || undefined,
+        mood_after: moodAfter || undefined,
       }),
       base44.entities.Task.update(task.id, {
         status: completionState === "paused" ? "paused" : completionState === "good_enough_done" ? "good_enough_done" : "completed",
@@ -375,6 +377,27 @@ Give a single short sentence of warm encouragement to start. Max 20 words. Sound
                   <button key={n} onClick={() => setUrge(n)}
                     className={`w-8 h-8 rounded-full text-xs font-semibold transition-all ${urge === n ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent"}`}>
                     {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Mood after */}
+            <div>
+              <p className="text-xs text-muted-foreground font-medium mb-2">How do you feel right now?</p>
+              <div className="flex gap-2">
+                {[
+                  { v: "drained",   l: "😮‍💨", desc: "Drained" },
+                  { v: "neutral",   l: "😐", desc: "Neutral" },
+                  { v: "okay",      l: "🙂", desc: "Okay" },
+                  { v: "good",      l: "😊", desc: "Good" },
+                  { v: "energized", l: "⚡", desc: "Energized" },
+                ].map(o => (
+                  <button key={o.v} onClick={() => setMoodAfter(m => m === o.v ? null : o.v)}
+                    title={o.desc}
+                    className={`flex flex-col items-center gap-0.5 px-2 py-2 rounded-xl border-2 text-xl transition-all ${moodAfter === o.v ? "border-primary bg-primary/5 scale-110" : "border-border/60 bg-card hover:border-border"}`}>
+                    {o.l}
+                    <span className="text-[9px] text-muted-foreground">{o.desc}</span>
                   </button>
                 ))}
               </div>
