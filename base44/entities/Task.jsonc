@@ -5,29 +5,31 @@
     "title": {
       "type": "string"
     },
-    "first_action": {
-      "type": "string"
-    },
-    "done_condition": {
-      "type": "string"
-    },
-    "why_it_matters": {
-      "type": "string"
+    "category": {
+      "type": "string",
+      "enum": [
+        "work",
+        "home",
+        "admin",
+        "study",
+        "health",
+        "errands",
+        "creative",
+        "other"
+      ],
+      "default": "other"
     },
     "status": {
       "type": "string",
       "enum": [
-        "inbox",
-        "today",
-        "focus",
-        "parked",
-        "paused",
-        "completed",
-        "good_enough_done",
-        "delegated",
-        "abandoned"
+        "not_started",
+        "started",
+        "in_progress",
+        "partly_done",
+        "done",
+        "carried_forward"
       ],
-      "default": "inbox"
+      "default": "not_started"
     },
     "energy_required": {
       "type": "string",
@@ -38,65 +40,40 @@
       ],
       "default": "medium"
     },
-    "context": {
-      "type": "string",
-      "enum": [
-        "home",
-        "work",
-        "computer",
-        "phone",
-        "outside",
-        "errands",
-        "social",
-        "other"
-      ],
-      "default": "other"
-    },
-    "emotional_load": {
-      "type": "string",
-      "enum": [
-        "low",
-        "medium",
-        "high"
-      ],
-      "default": "low"
-    },
     "time_estimate_minutes": {
       "type": "number",
-      "description": "Estimated time to complete the task in minutes"
+      "description": "Estimated time to complete in minutes"
     },
-    "ocd_risk_flag": {
-      "type": "boolean",
-      "default": false
-    },
-    "deadline": {
+    "due_date": {
       "type": "string",
       "format": "date"
     },
-    "last_opened_at": {
-      "type": "string",
-      "format": "date-time"
+    "tiny_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Shrunk micro-steps for this task"
     },
-    "completed_at": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "reopen_count": {
+    "current_tiny_action_index": {
       "type": "number",
       "default": 0
     },
-    "edit_count": {
-      "type": "number",
-      "default": 0
+    "progress_notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
     },
-    "reassurance_request_count": {
-      "type": "number",
-      "default": 0
-    },
-    "future_you_note": {
-      "type": "string"
-    },
-    "current_certainty_budget_id": {
+    "current_focus_session_id": {
       "type": "string"
     }
   },

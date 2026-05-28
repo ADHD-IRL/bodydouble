@@ -6,13 +6,14 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
-import Home from './pages/Home';
+import Home from './pages/Home.jsx';
 import QuickCapture from './pages/QuickCapture';
 import TaskList from './pages/TaskList';
 import ParkingLot from './pages/ParkingLot';
 import FocusSession from './pages/FocusSession';
 import WeeklyRecap from './pages/WeeklyRecap';
 import Settings from './pages/Settings';
+import Session from './pages/Session';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -48,6 +49,7 @@ const AuthenticatedApp = () => {
       <Route path="/focus" element={<FocusSession />} />
       <Route path="/weekly-recap" element={<WeeklyRecap />} />
       <Route path="/settings" element={<Settings />} />
+      <Route path="/session" element={<Session />} />
       {/* Add your page Route elements here */}
       <Route path="*" element={<PageNotFound />} />
     </Routes>

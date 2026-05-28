@@ -1,0 +1,99 @@
+{
+  "name": "FocusSession",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "task_title": {
+      "type": "string"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "timer_length_minutes": {
+      "type": "number",
+      "default": 25
+    },
+    "session_status": {
+      "type": "string",
+      "enum": [
+        "started",
+        "paused",
+        "ended"
+      ],
+      "default": "started"
+    },
+    "stuck_events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "resolution": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "drift_events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ai_prompts_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "session_outcome": {
+      "type": "string",
+      "enum": [
+        "finished",
+        "made_progress",
+        "started_counts",
+        "learned_next_step",
+        "carry_forward",
+        "not_today"
+      ]
+    },
+    "progress_note": {
+      "type": "string"
+    },
+    "next_suggested_step": {
+      "type": "string"
+    },
+    "current_tiny_action": {
+      "type": "string"
+    }
+  },
+  "required": []
+}

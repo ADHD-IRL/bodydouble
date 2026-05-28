@@ -1,0 +1,30 @@
+{
+  "name": "DailyAnchor",
+  "type": "object",
+  "properties": {
+    "label": {
+      "type": "string",
+      "description": "e.g. Wake up, Take medication, Eat"
+    },
+    "scheduled_time": {
+      "type": "string",
+      "description": "HH:MM format"
+    },
+    "is_medication": {
+      "type": "boolean",
+      "default": false,
+      "description": "Private medication tracking flag"
+    },
+    "order": {
+      "type": "number",
+      "default": 0
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "label"
+  ]
+}
