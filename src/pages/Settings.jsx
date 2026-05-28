@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, Check, Play, Loader2, RefreshCw, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Check, Play, Loader2, RefreshCw, AlertTriangle, Plus, Trash2, Sun } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AVATARS } from "@/components/AvatarCompanion";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const TONES = [
   { v: "gentle",   l: "Gentle",   desc: "Soft, patient, reassuring" },
@@ -35,10 +35,47 @@ export default function Settings() {
   const [resetDone, setResetDone] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
 
+  // Anchors state
+  const [anchors, setAnchors] = useState([]);
+  const [newAnchorLabel, setNewAnchorLabel] = useState("");
+  const [newAnchorTime, setNewAnchorTime] = useState("");
+  const [showAddAnchor, setShowAddAnchor] = useState(false);
+
   useEffect(() => {
     loadProfile();
     loadVoices();
-  }, []);
+    loadAnchors();
+  }, []); 
+  
+  const loadAnchors = async () => {
+    const list = await base44.entities.DailyAnchor.list("order", 50);
+    setAnchors(list);
+  };
+
+  const handleAddAnchor = async () => {
+    if (!newAnchorLabel.trim()) return;
+    const created = await base44.entities.DailyAnchor.create({
+      label: newAnchorLabel.trim(),
+      scheduled_time: newAnchorTime || "",
+      enabled: true,
+      order: anchors.length,
+    });
+    setAnchors(prev => [...prev, created]);
+    setNewAnchorLabel("");
+    setNewAnchorTime("");
+    setShowAddAnchor(false);
+  };
+
+  const handleDeleteAnchor = async (id) => {
+    await base44.entities.DailyAnchor.delete(id);
+    setAnchors(prev => prev.filter(a => a.id !== id));
+  };
+
+  const handleToggleAnchor = async (anchor) => {
+    const updated = { ...anchor, enabled: !anchor.enabled };
+    setAnchors(prev => prev.map(a => a.id === anchor.id ? updated : a));
+    await base44.entities.DailyAnchor.update(anchor.id, { enabled: updated.enabled });
+  };
 
   const loadProfile = async () => {
     const profiles = await base44.entities.UserProfile.list();
@@ -289,6 +326,82 @@ export default function Settings() {
                 </button>
               </motion.div>
             )}
+          </section>
+
+          {/* Daily Anchors */}
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                  <Sun className="w-3.5 h-3.5" /> Daily anchors
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Routine checkpoints shown on your home screen</p>
+              </div>
+              <button
+                onClick={() => setShowAddAnchor(v => !v)}
+                className="p-1.5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+
+            <AnimatePresence>
+              {showAddAnchor && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  className="mb-3 bg-card border border-border rounded-xl px-4 py-3 space-y-2"
+                >
+                  <input
+                    autoFocus
+                    value={newAnchorLabel}
+                    onChange={e => setNewAnchorLabel(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") handleAddAnchor(); if (e.key === "Escape") setShowAddAnchor(false); }}
+                    placeholder="Anchor label (e.g. Morning walk)"
+                    className="w-full bg-background border border-border/60 rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50"
+                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="time"
+                      value={newAnchorTime}
+                      onChange={e => setNewAnchorTime(e.target.value)}
+                      className="flex-1 bg-background border border-border/60 rounded-xl px-3 py-2 text-sm text-foreground outline-none focus:border-primary/50"
+                    />
+                    <button
+                      onClick={handleAddAnchor}
+                      disabled={!newAnchorLabel.trim()}
+                      className="px-4 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium disabled:opacity-50"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="space-y-2">
+              {anchors.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-4">No anchors yet. Add one above.</p>
+              )}
+              {anchors.map(anchor => (
+                <div key={anchor.id} className="flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3">
+                  <button
+                    onClick={() => handleToggleAnchor(anchor)}
+                    className={`w-9 h-5 rounded-full transition-colors relative shrink-0 ${anchor.enabled !== false ? "bg-primary" : "bg-muted"}`}
+                  >
+                    <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${anchor.enabled !== false ? "translate-x-4" : "translate-x-0.5"}`} />
+                  </button>
+                  <span className="flex-1 text-sm text-foreground">{anchor.label}</span>
+                  {anchor.scheduled_time && (
+                    <span className="text-xs text-muted-foreground">{anchor.scheduled_time}</span>
+                  )}
+                  <button onClick={() => handleDeleteAnchor(anchor.id)} className="p-1.5 text-muted-foreground hover:text-destructive transition-colors">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </section>
 
           {/* Reset Day */}
