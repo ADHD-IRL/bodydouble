@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, ListTodo, Archive, BarChart2, Settings, Crosshair } from "lucide-react";
+import { Plus, ListTodo, Archive, BarChart2, Settings, Crosshair, Clock } from "lucide-react";
 import DailyAnchors from "@/components/DailyAnchors";
 import AvatarCompanion from "@/components/AvatarCompanion";
 
@@ -11,8 +11,12 @@ export default function Home() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [newTask, setNewTask] = useState("");
+  const [newTaskDate, setNewTaskDate] = useState(new Date().toISOString().split("T")[0]);
+  const [newTaskTime, setNewTaskTime] = useState("");
   const [showInput, setShowInput] = useState(false);
   const navigate = useNavigate();
+
+  const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     loadData();
@@ -28,17 +32,34 @@ export default function Home() {
     setLoading(false);
   };
 
-  const activeTasks = tasks.filter(t =>
+  const allActiveTasks = tasks.filter(t =>
     ["not_started", "started", "in_progress", "partly_done"].includes(t.status)
   );
+
+  // Today's tasks: scheduled for today, or no date set
+  const activeTasks = allActiveTasks.filter(t =>
+    !t.scheduled_date || t.scheduled_date === today
+  );
+
+  // Sort by scheduled_time if present
+  activeTasks.sort((a, b) => {
+    if (a.scheduled_time && b.scheduled_time) return a.scheduled_time.localeCompare(b.scheduled_time);
+    if (a.scheduled_time) return -1;
+    if (b.scheduled_time) return 1;
+    return 0;
+  });
 
   const topTask = activeTasks[0];
 
   const handleAddTask = async () => {
     if (!newTask.trim()) return;
-    const created = await base44.entities.Task.create({ title: newTask.trim(), status: "not_started" });
+    const data = { title: newTask.trim(), status: "not_started", scheduled_date: newTaskDate };
+    if (newTaskTime) data.scheduled_time = newTaskTime;
+    const created = await base44.entities.Task.create(data);
     setTasks(prev => [created, ...prev]);
     setNewTask("");
+    setNewTaskTime("");
+    setNewTaskDate(today);
     setShowInput(false);
   };
 
@@ -74,7 +95,7 @@ export default function Home() {
               {greeting()}{name ? `, ${name}` : ""}.
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {activeTasks.length} active task{activeTasks.length !== 1 ? "s" : ""}
+              {activeTasks.length} task{activeTasks.length !== 1 ? "s" : ""} today
             </p>
           </div>
           <Link to="/settings" className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground">
@@ -85,7 +106,7 @@ export default function Home() {
         {/* Avatar Companion */}
         <div className="mb-8">
           <AvatarCompanion
-            tasks={tasks}
+            tasks={activeTasks}
             profile={profile}
             onUpdateProfile={async (data) => {
               const profiles = await base44.entities.UserProfile.list();
@@ -144,7 +165,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
-                className="mb-3 flex gap-2"
+                className="mb-3 bg-card border border-border rounded-2xl px-4 py-3 space-y-2"
               >
                 <input
                   autoFocus
@@ -152,10 +173,24 @@ export default function Home() {
                   onChange={e => setNewTask(e.target.value)}
                   onKeyDown={e => { if (e.key === "Enter") handleAddTask(); if (e.key === "Escape") setShowInput(false); }}
                   placeholder="What needs doing?"
-                  className="flex-1 bg-card border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50"
+                  className="w-full bg-background border border-border/60 rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary/50"
                 />
-                <button onClick={handleAddTask} disabled={!newTask.trim()} className="bg-primary text-primary-foreground rounded-xl px-4 py-2 text-sm font-medium disabled:opacity-50">
-                  Add
+                <div className="flex gap-2">
+                  <input
+                    type="date"
+                    value={newTaskDate}
+                    onChange={e => setNewTaskDate(e.target.value)}
+                    className="flex-1 bg-background border border-border/60 rounded-xl px-3 py-2 text-sm text-foreground outline-none focus:border-primary/50"
+                  />
+                  <input
+                    type="time"
+                    value={newTaskTime}
+                    onChange={e => setNewTaskTime(e.target.value)}
+                    className="flex-1 bg-background border border-border/60 rounded-xl px-3 py-2 text-sm text-foreground outline-none focus:border-primary/50"
+                  />
+                </div>
+                <button onClick={handleAddTask} disabled={!newTask.trim()} className="w-full bg-primary text-primary-foreground rounded-xl px-4 py-2 text-sm font-medium disabled:opacity-50">
+                  Add task
                 </button>
               </motion.div>
             )}
@@ -167,7 +202,14 @@ export default function Home() {
                 key={task.id}
                 className="bg-card border border-border rounded-2xl px-4 py-3 flex items-center justify-between gap-3"
               >
-                <p className="text-sm text-foreground flex-1 truncate">{task.title}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-foreground truncate">{task.title}</p>
+                  {task.scheduled_time && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                      <Clock className="w-3 h-3" /> {task.scheduled_time}
+                    </p>
+                  )}
+                </div>
                 <button
                   onClick={() => handleStartFocus(task)}
                   className="shrink-0 p-1.5 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"

@@ -40,6 +40,15 @@
       ],
       "default": "medium"
     },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date",
+      "description": "The date this task is scheduled for (YYYY-MM-DD)"
+    },
+    "scheduled_time": {
+      "type": "string",
+      "description": "The time this task is scheduled for (HH:MM)"
+    },
     "time_estimate_minutes": {
       "type": "number",
       "description": "Estimated time to complete in minutes"
