@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, ListTodo, Archive, BarChart2, Settings, Crosshair } from "lucide-react";
 import DailyAnchors from "@/components/DailyAnchors";
+import AvatarCompanion from "@/components/AvatarCompanion";
 
 export default function Home() {
   const [tasks, setTasks] = useState([]);
@@ -79,6 +80,25 @@ export default function Home() {
           <Link to="/settings" className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground">
             <Settings className="w-5 h-5" />
           </Link>
+        </div>
+
+        {/* Avatar Companion */}
+        <div className="mb-8">
+          <AvatarCompanion
+            tasks={tasks}
+            profile={profile}
+            onUpdateProfile={async (data) => {
+              const profiles = await base44.entities.UserProfile.list();
+              const p = profiles[0];
+              if (p) await base44.entities.UserProfile.update(p.id, data);
+              setProfile(prev => ({ ...prev, ...data }));
+            }}
+            onStartTask={(task) => handleStartFocus(task)}
+            onCapture={() => navigate("/capture")}
+            onTaskCompleted={loadData}
+            onCreateTask={() => setShowInput(true)}
+            navigate={navigate}
+          />
         </div>
 
         {/* Daily Anchors */}
