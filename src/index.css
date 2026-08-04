@@ -97,3 +97,70 @@
     font-family: 'Fraunces', serif;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Neurodivergence Library (/resources) — scoped editorial theme.      */
+/* Strict green + blue palette on warm off-white foundations.          */
+/* Scoped under .rx-theme so it never touches the app's granola tokens.*/
+/* ------------------------------------------------------------------ */
+.rx-theme {
+  /* Foundations — warm off-white, faint seafoam tint (never #fff) */
+  --rx-bg: 165 26% 96%;
+  --rx-surface: 168 32% 98%;
+  --rx-surface-2: 162 22% 93%;
+
+  /* Ink — deep blue-green slate, never pure black */
+  --rx-ink: 196 34% 15%;
+  --rx-ink-soft: 196 15% 37%;
+  --rx-ink-faint: 190 12% 52%;
+
+  /* Hairlines & structure */
+  --rx-line: 162 17% 84%;
+  --rx-line-strong: 158 26% 68%;
+
+  /* Cool, calm accents */
+  --rx-sage: 145 27% 50%;     /* sage green */
+  --rx-forest: 158 44% 21%;   /* deep forest — headers / strong borders */
+  --rx-blue: 202 49% 50%;     /* soft coastal blue */
+  --rx-cyan: 183 47% 40%;     /* seafoam / cyan — interactive & active states */
+  --rx-cyan-soft: 182 44% 91%;/* active / hover tint */
+
+  background-color: hsl(var(--rx-bg));
+  color: hsl(var(--rx-ink));
+}
+
+/* Sensory-Friendly reading mode — lower contrast, warmer, desaturated,
+   calmer motion. Applied on top of .rx-theme. */
+.rx-theme.rx-sensory {
+  --rx-bg: 150 15% 95%;
+  --rx-surface: 150 14% 97%;
+  --rx-surface-2: 150 12% 92%;
+
+  --rx-ink: 200 18% 26%;
+  --rx-ink-soft: 198 10% 42%;
+  --rx-ink-faint: 195 8% 54%;
+
+  --rx-line: 150 11% 86%;
+  --rx-line-strong: 150 14% 74%;
+
+  --rx-sage: 145 17% 54%;
+  --rx-forest: 158 24% 30%;
+  --rx-blue: 202 26% 55%;
+  --rx-cyan: 183 24% 46%;
+  --rx-cyan-soft: 165 18% 90%;
+
+  letter-spacing: 0.006em;
+}
+
+/* In sensory mode, calm all transitions/animations within the library */
+.rx-theme.rx-sensory * {
+  animation-duration: 0.001ms !important;
+  transition-duration: 120ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx-theme * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
