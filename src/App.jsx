@@ -14,6 +14,7 @@ import FocusSession from './pages/FocusSession';
 import WeeklyRecap from './pages/WeeklyRecap';
 import Settings from './pages/Settings';
 import Session from './pages/Session';
+import Resources from './pages/Resources';
 // Add page imports here
 
 const AuthenticatedApp = () => {
@@ -50,6 +51,7 @@ const AuthenticatedApp = () => {
       <Route path="/weekly-recap" element={<WeeklyRecap />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/session" element={<Session />} />
+      <Route path="/resources" element={<Resources />} />
       {/* Add your page Route elements here */}
       <Route path="*" element={<PageNotFound />} />
     </Routes>

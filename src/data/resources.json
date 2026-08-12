@@ -1,0 +1,337 @@
+{
+  "$schema": {
+    "description": "Centralized resource catalogue for the Neurodivergence Library. To publish a new resource: (1) drop the file into /public/downloads, then (2) append one object to the `resources` array below. No component changes are required.",
+    "fields": {
+      "id": "string — unique, stable, kebab-case slug",
+      "title": "string — the resource title",
+      "description": "string — one or two sentence plain-language summary shown on the card",
+      "category": "string — MUST match one of the values in `categories` exactly",
+      "type": "string — one of: Whitepaper | Clinical Study | Worksheet | Toolkit",
+      "authorOrInstitution": "string — author, research group, or publishing institution",
+      "publishDate": "string — ISO 8601 date, e.g. 2025-11-02",
+      "downloadUrl": "string — path to the file, e.g. /downloads/my-file.pdf (relative to /public)",
+      "abstract": "string (optional) — longer editorial abstract; shown in the 'Read Abstract' panel and on research cards",
+      "featured": "boolean (optional) — when true, the resource is surfaced in the 'Cutting-Edge Research' section",
+      "readingMinutes": "number (optional) — estimated reading time, shown on research cards"
+    },
+    "supplementFields": {
+      "id": "string — unique, stable, kebab-case slug",
+      "name": "string — supplement name, e.g. 'Omega-3 (EPA/DHA)'",
+      "supports": "string — short line describing what it may support",
+      "relatedArea": "string — a focus area, or 'General regulation'",
+      "evidenceLevel": "string — one of: Well-studied | Moderate evidence | Emerging",
+      "summary": "string — neutral, evidence-led paragraph",
+      "considerations": "string — practical, safety-first notes (testing, interactions)",
+      "downloadUrl": "string (optional) — path to a guide in /downloads"
+    },
+    "diagnosticFields": {
+      "id": "string — unique, stable, kebab-case slug",
+      "modality": "string — method name, e.g. 'EEG & qEEG'",
+      "method": "string — short line on what it measures",
+      "appliesTo": "string — conditions it is studied in, or 'Transdiagnostic'",
+      "maturity": "string — one of: Research only | Emerging | Clinical adjunct",
+      "summary": "string — neutral explanation of the method",
+      "promise": "string — what it could improve about identification",
+      "caveat": "string — the key limitation / accuracy caveat",
+      "downloadUrl": "string (optional) — path to a briefing in /downloads"
+    }
+  },
+  "categories": [
+    "ADHD & Executive Function",
+    "Autism & AuDHD",
+    "Monotropism & Double Empathy Problem",
+    "Sensory Processing & Interoception",
+    "High Giftedness & 2e (Twice Exceptional)"
+  ],
+  "resources": [
+    {
+      "id": "executive-function-scaffolding-toolkit",
+      "title": "Executive Function Scaffolding: A Practitioner's Toolkit",
+      "description": "Structured strategies for externalising working memory, initiation and time-perception — designed for ADHD brains rather than adapted for them.",
+      "category": "ADHD & Executive Function",
+      "type": "Toolkit",
+      "authorOrInstitution": "Institute for Neuroaffirming Practice",
+      "publishDate": "2025-09-18",
+      "abstract": "This toolkit reframes executive dysfunction not as a deficit of effort but as a difference in the neural regulation of goal-directed behaviour. Drawing on Barkley's model of self-regulation and more recent interest-based nervous-system research, it offers concrete scaffolds — body-doubling, temporal anchoring, and 'externalised intention' cues — that reduce the working-memory load of everyday tasks.",
+      "downloadUrl": "/downloads/executive-function-scaffolding-toolkit.pdf",
+      "readingMinutes": 22
+    },
+    {
+      "id": "adhd-time-blindness-worksheet",
+      "title": "Time-Blindness & Task Estimation Worksheet",
+      "description": "A printable, low-friction worksheet for building a personal reference library of how long tasks actually take versus how long they feel.",
+      "category": "ADHD & Executive Function",
+      "type": "Worksheet",
+      "authorOrInstitution": "Dr. Priya Raghunathan, Clinical Psychologist",
+      "publishDate": "2025-06-30",
+      "downloadUrl": "/downloads/adhd-time-blindness-worksheet.pdf"
+    },
+    {
+      "id": "audhd-support-needs-whitepaper",
+      "title": "AuDHD: Living at the Intersection of Two Neurotypes",
+      "description": "A whitepaper on the lived experience and support needs of people who are both Autistic and ADHD, where regulation strategies can directly conflict.",
+      "category": "Autism & AuDHD",
+      "type": "Whitepaper",
+      "authorOrInstitution": "Neurodivergent Research Collective",
+      "publishDate": "2025-10-11",
+      "abstract": "The co-occurrence of Autism and ADHD (AuDHD) is now understood to be common rather than exceptional. This paper examines the internal tension of the profile — a nervous system that simultaneously seeks novelty and predictability — and argues for individualised, contradiction-tolerant support plans over one-size-fits-all protocols.",
+      "downloadUrl": "/downloads/audhd-support-needs-whitepaper.pdf",
+      "readingMinutes": 31
+    },
+    {
+      "id": "monotropism-double-empathy-study",
+      "title": "Monotropism and the Double Empathy Problem: A Bridging Framework",
+      "description": "An emerging clinical synthesis linking monotropic attention styles to the mutual, bidirectional nature of cross-neurotype miscommunication.",
+      "category": "Monotropism & Double Empathy Problem",
+      "type": "Clinical Study",
+      "authorOrInstitution": "Milton & Fen-Hollande Research Group",
+      "publishDate": "2026-01-22",
+      "abstract": "The Double Empathy Problem reframes Autistic communication difficulty as a two-way breakdown between neurotypes rather than a one-sided deficit. This study pairs that lens with monotropism theory — the tendency toward deep, singular attention tunnels — to explain why shared context, not social 'skill', is the strongest predictor of successful cross-neurotype interaction.",
+      "downloadUrl": "/downloads/monotropism-double-empathy-study.pdf",
+      "featured": true,
+      "readingMinutes": 27
+    },
+    {
+      "id": "interoception-sensory-regulation-study",
+      "title": "Interoception as the Missing Layer in Sensory Regulation",
+      "description": "A transdiagnostic clinical study positioning interoceptive awareness — the sense of the body's internal state — as foundational to emotional and sensory regulation.",
+      "category": "Sensory Processing & Interoception",
+      "type": "Clinical Study",
+      "authorOrInstitution": "Coastal Neurodevelopment Centre",
+      "publishDate": "2025-12-05",
+      "abstract": "Traditional sensory-processing models focus on the external eight senses while under-weighting interoception. This study presents evidence that interoceptive precision predicts self-regulation capacity across ADHD, Autistic and anxious presentations alike, making it a promising transdiagnostic target for neuro-affirming intervention.",
+      "downloadUrl": "/downloads/interoception-sensory-regulation-study.pdf",
+      "featured": true,
+      "readingMinutes": 24
+    },
+    {
+      "id": "sensory-diet-planning-worksheet",
+      "title": "Sensory Diet Planning Worksheet",
+      "description": "A calm, grid-based worksheet for mapping sensory inputs across a day and identifying where regulation support is most needed.",
+      "category": "Sensory Processing & Interoception",
+      "type": "Worksheet",
+      "authorOrInstitution": "Occupational Therapy Neuroaffirming Network",
+      "publishDate": "2025-07-14",
+      "downloadUrl": "/downloads/sensory-diet-planning-worksheet.pdf"
+    },
+    {
+      "id": "twice-exceptional-identification-whitepaper",
+      "title": "Recognising the Twice-Exceptional (2e) Learner",
+      "description": "Why high giftedness and a co-occurring disability so often mask one another — and a framework for identification that looks past averaged test scores.",
+      "category": "High Giftedness & 2e (Twice Exceptional)",
+      "type": "Whitepaper",
+      "authorOrInstitution": "Centre for Gifted & Neurodivergent Learning",
+      "publishDate": "2025-08-02",
+      "abstract": "Twice-exceptional learners are gifted and also have one or more disabilities. Because strengths and challenges frequently cancel out on standardised measures, these learners are routinely under-identified. This whitepaper offers a strengths-first identification framework and argues for asynchronous, profile-based support.",
+      "downloadUrl": "/downloads/twice-exceptional-identification-whitepaper.pdf"
+    },
+    {
+      "id": "neuroaffirming-paradigm-shift-study",
+      "title": "From Remediation to Affirmation: A Paradigm Shift in Practice",
+      "description": "A landmark study charting the field's move away from deficit-based remediation toward neuro-affirming, identity-first models of support.",
+      "category": "High Giftedness & 2e (Twice Exceptional)",
+      "type": "Clinical Study",
+      "authorOrInstitution": "Journal of Neuroaffirming Clinical Practice",
+      "publishDate": "2026-02-01",
+      "abstract": "This study documents outcome data from clinics that transitioned from deficit-remediation models to neuro-affirming, strengths-based practice. Across ADHD, Autistic and 2e cohorts, affirmation-first care correlated with lower reported burnout and higher self-advocacy — reframing 'treatment' as accommodation and identity support rather than normalisation.",
+      "downloadUrl": "/downloads/neuroaffirming-paradigm-shift-study.pdf",
+      "featured": true,
+      "readingMinutes": 29
+    },
+    {
+      "id": "body-doubling-task-initiation-whitepaper",
+      "title": "Body Doubling: The Social Scaffold for Task Initiation",
+      "description": "Why working alongside another person lowers the activation energy of hard-to-start tasks, and how to build body-doubling into a routine.",
+      "category": "ADHD & Executive Function",
+      "type": "Whitepaper",
+      "authorOrInstitution": "Institute for Neuroaffirming Practice",
+      "publishDate": "2025-11-27",
+      "abstract": "Body doubling — completing a task in the presence, real or virtual, of another person — is one of the most widely reported yet under-studied ADHD strategies. This paper reviews the emerging evidence and proposes a mechanism rooted in externalised accountability and reduced initiation load rather than surveillance.",
+      "downloadUrl": "/downloads/body-doubling-task-initiation-whitepaper.pdf",
+      "readingMinutes": 18
+    },
+    {
+      "id": "autistic-burnout-recovery-study",
+      "title": "Autistic Burnout: Recognition and Recovery",
+      "description": "A clinical study distinguishing autistic burnout from depression, and mapping the conditions — reduced masking, restored autonomy — under which people recover.",
+      "category": "Autism & AuDHD",
+      "type": "Clinical Study",
+      "authorOrInstitution": "Neurodivergent Research Collective",
+      "publishDate": "2026-01-09",
+      "abstract": "Autistic burnout is a state of pervasive exhaustion, loss of skills and reduced tolerance to stimuli, frequently misdiagnosed as depression. This study characterises its distinct profile and finds that recovery is predicted by reductions in masking demands and increases in self-directed time rather than conventional antidepressant pathways.",
+      "downloadUrl": "/downloads/autistic-burnout-recovery-study.pdf",
+      "featured": true,
+      "readingMinutes": 26
+    },
+    {
+      "id": "monotropic-flow-environments-toolkit",
+      "title": "Designing for Monotropic Flow",
+      "description": "A toolkit for arranging environments, schedules and transitions to protect deep attention tunnels instead of interrupting them.",
+      "category": "Monotropism & Double Empathy Problem",
+      "type": "Toolkit",
+      "authorOrInstitution": "Occupational Therapy Neuroaffirming Network",
+      "publishDate": "2025-10-30",
+      "downloadUrl": "/downloads/monotropic-flow-environments-toolkit.pdf",
+      "readingMinutes": 15
+    },
+    {
+      "id": "interoception-building-worksheet",
+      "title": "Interoception-Building Activities Worksheet",
+      "description": "Gentle, repeatable activities for noticing internal signals — hunger, thirst, temperature, tension — to strengthen the interoceptive sense over time.",
+      "category": "Sensory Processing & Interoception",
+      "type": "Worksheet",
+      "authorOrInstitution": "Coastal Neurodevelopment Centre",
+      "publishDate": "2025-09-05",
+      "downloadUrl": "/downloads/interoception-building-worksheet.pdf"
+    },
+    {
+      "id": "asynchronous-development-2e-whitepaper",
+      "title": "Asynchronous Development in Gifted & 2e Learners",
+      "description": "Why a gifted child can reason like an adult and regulate like a much younger one at the same time — and how support should follow the profile, not the age.",
+      "category": "High Giftedness & 2e (Twice Exceptional)",
+      "type": "Whitepaper",
+      "authorOrInstitution": "Centre for Gifted & Neurodivergent Learning",
+      "publishDate": "2025-12-18",
+      "abstract": "Asynchronous development — uneven progress across intellectual, emotional and motor domains — is a defining feature of high giftedness and is amplified in 2e profiles. This paper argues for support that responds to each domain's actual level rather than to chronological age or averaged scores.",
+      "downloadUrl": "/downloads/asynchronous-development-2e-whitepaper.pdf",
+      "readingMinutes": 20
+    },
+    {
+      "id": "pda-nervous-system-study",
+      "title": "Demand Avoidance (PDA): A Nervous-System Framing",
+      "description": "A clinical study reframing pathological/persistent demand avoidance as an autonomic threat response to loss of autonomy rather than defiance.",
+      "category": "Autism & AuDHD",
+      "type": "Clinical Study",
+      "authorOrInstitution": "Milton & Fen-Hollande Research Group",
+      "publishDate": "2026-02-14",
+      "abstract": "This study reframes demand avoidance through the lens of nervous-system threat detection: perceived loss of autonomy triggers an autonomic response that makes even desired tasks feel impossible. Collaborative, low-demand and autonomy-preserving approaches outperform compliance-based strategies across the cohort.",
+      "downloadUrl": "/downloads/pda-nervous-system-study.pdf",
+      "featured": true,
+      "readingMinutes": 23
+    }
+  ],
+  "supplements": [
+    {
+      "id": "omega-3",
+      "name": "Omega-3 (EPA/DHA)",
+      "supports": "Attention, emotional regulation & mood",
+      "relatedArea": "ADHD & Executive Function",
+      "evidenceLevel": "Well-studied",
+      "summary": "Long-chain omega-3 fatty acids, particularly EPA, have the strongest research base of any supplement studied in ADHD. Effects are modest but reasonably consistent, and are most noticeable in people with lower baseline dietary intake of oily fish.",
+      "considerations": "Higher-EPA formulations are the ones usually studied, and it can take 8–12 weeks to notice any change. May interact with blood-thinning medication — worth discussing with a clinician first.",
+      "downloadUrl": "/downloads/omega-3-guide.pdf"
+    },
+    {
+      "id": "magnesium",
+      "name": "Magnesium (glycinate)",
+      "supports": "Sleep, relaxation & sensory settling",
+      "relatedArea": "Sensory Processing & Interoception",
+      "evidenceLevel": "Moderate evidence",
+      "summary": "Magnesium is involved in nervous-system regulation and is commonly under-consumed in the general population. Glycinate and threonate forms are gentler on digestion than oxide, and it is often explored for sleep onset and physical restlessness.",
+      "considerations": "Generally well-tolerated; too much can cause digestive upset. It interacts with some medications, so mention it to a clinician — especially if you have kidney concerns.",
+      "downloadUrl": "/downloads/magnesium-guide.pdf"
+    },
+    {
+      "id": "iron-ferritin",
+      "name": "Iron & Ferritin",
+      "supports": "Focus, restlessness & dopamine synthesis",
+      "relatedArea": "ADHD & Executive Function",
+      "evidenceLevel": "Moderate evidence",
+      "summary": "Low ferritin (the body's iron stores) is more common in ADHD and is linked to restlessness and poorer attention, likely via dopamine pathways. Correcting a genuine deficiency can help; supplementing without one does not.",
+      "considerations": "Test ferritin first — iron is harmful in excess and should never be supplemented blind, especially in children. This one is always clinician-guided."
+    },
+    {
+      "id": "zinc",
+      "name": "Zinc",
+      "supports": "Neurotransmitter regulation",
+      "relatedArea": "ADHD & Executive Function",
+      "evidenceLevel": "Emerging",
+      "summary": "Zinc plays a role in dopamine metabolism, and some studies find lower zinc levels in ADHD populations. Evidence for supplementation is mixed and strongest where an actual deficiency exists.",
+      "considerations": "Best guided by testing. Sustained high doses interfere with copper absorption over time, so keep a clinician in the loop."
+    },
+    {
+      "id": "vitamin-d",
+      "name": "Vitamin D",
+      "supports": "Mood & overall neurodevelopmental health",
+      "relatedArea": "General regulation",
+      "evidenceLevel": "Moderate evidence",
+      "summary": "Vitamin D deficiency is widespread, particularly in less sunny climates, and is associated with mood and cognitive effects. Correcting a confirmed deficiency supports general wellbeing rather than targeting neurodivergence directly.",
+      "considerations": "A simple blood test shows whether you're low. It's fat-soluble, so excess accumulates — stick to tested, clinician-advised amounts."
+    },
+    {
+      "id": "l-theanine",
+      "name": "L-theanine",
+      "supports": "Calm alertness & winding down",
+      "relatedArea": "Autism & AuDHD",
+      "evidenceLevel": "Emerging",
+      "summary": "An amino acid found in tea, L-theanine is associated with a state of relaxed alertness and is sometimes explored alongside caffeine or for evening settling. Research specifically in neurodivergent populations is still early.",
+      "considerations": "Generally well-tolerated. As with any supplement, talk through timing and interactions with a clinician before starting."
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "eeg-qeeg",
+      "modality": "EEG & qEEG",
+      "method": "Measures the brain's electrical rhythms",
+      "appliesTo": "ADHD",
+      "maturity": "Clinical adjunct",
+      "summary": "Electroencephalography records electrical activity through scalp sensors. Quantitative EEG (qEEG) analyses patterns such as the theta/beta ratio, which differs on average in ADHD. It is inexpensive, non-invasive and quick.",
+      "promise": "An objective, low-cost signal that can support an ADHD assessment and help track response to support over time.",
+      "caveat": "Average group differences do not reliably identify individuals — EEG supports a full clinical assessment, it never replaces one.",
+      "downloadUrl": "/downloads/eeg-qeeg-briefing.pdf"
+    },
+    {
+      "id": "mri-fmri",
+      "modality": "Structural & Functional MRI",
+      "method": "Maps brain anatomy, activity & connectivity",
+      "appliesTo": "Autism · ADHD",
+      "maturity": "Research only",
+      "summary": "Structural MRI maps anatomy while functional MRI (fMRI) measures blood-flow changes linked to neural activity. Studies consistently find differences in network organisation and connectivity across neurotypes.",
+      "promise": "A rich window into brain networks that may eventually inform subtyping and more personalised support.",
+      "caveat": "Individual measurements overlap heavily between groups; no MRI can currently diagnose a neurodevelopmental condition. Research use only.",
+      "downloadUrl": "/downloads/mri-fmri-briefing.pdf"
+    },
+    {
+      "id": "eye-tracking",
+      "modality": "Eye-Tracking",
+      "method": "Captures gaze patterns & visual attention",
+      "appliesTo": "Autism",
+      "maturity": "Emerging",
+      "summary": "Eye-tracking records where and for how long a person looks, capturing differences in social attention and visual exploration that can appear very early in development — sometimes in infancy.",
+      "promise": "A promising route to earlier, more objective identification of autistic traits, including before speech develops.",
+      "caveat": "Gaze patterns vary widely and overlap with interest and attention style — a screening aid, not a diagnosis.",
+      "downloadUrl": "/downloads/eye-tracking-briefing.pdf"
+    },
+    {
+      "id": "genetic-polygenic",
+      "modality": "Genetic & Polygenic Scores",
+      "method": "Aggregates many small inherited signals",
+      "appliesTo": "ADHD · Autism",
+      "maturity": "Research only",
+      "summary": "Neurodevelopmental conditions are highly heritable and polygenic — shaped by many common variants of small effect. Polygenic scores summarise this genetic loading across the whole genome.",
+      "promise": "May help explain shared, transdiagnostic risk and why traits cluster within families.",
+      "caveat": "Scores are probabilistic and population-dependent; they cannot diagnose an individual and raise real ethical questions."
+    },
+    {
+      "id": "continuous-performance-test",
+      "modality": "Continuous Performance Tests (CPT)",
+      "method": "Objectively measures sustained attention",
+      "appliesTo": "ADHD",
+      "maturity": "Clinical adjunct",
+      "summary": "Computerised CPTs measure sustained attention, impulsivity and reaction-time variability during a repetitive task — sometimes combined with motion tracking to capture restlessness.",
+      "promise": "Adds an objective behavioural data point to an assessment and can help gauge response to medication.",
+      "caveat": "Sensitivity and specificity are modest; a normal result does not rule ADHD out. Interpreted alongside history, never alone.",
+      "downloadUrl": "/downloads/continuous-performance-test-briefing.pdf"
+    },
+    {
+      "id": "digital-phenotyping-ml",
+      "modality": "Digital Phenotyping & Machine Learning",
+      "method": "Learns patterns from everyday digital signals",
+      "appliesTo": "Transdiagnostic",
+      "maturity": "Emerging",
+      "summary": "Machine-learning models combine signals — from wearables, voice, movement, gameplay or the methods above — to detect patterns associated with neurodivergence, an approach known as digital phenotyping.",
+      "promise": "Could enable earlier, more accessible and even continuous identification outside the clinic.",
+      "caveat": "Models risk bias, over-fitting and opacity; they need validation across diverse groups before clinical trust is warranted."
+    }
+  ]
+}

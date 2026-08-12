@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, ListTodo, Archive, BarChart2, Settings, Crosshair, Clock } from "lucide-react";
+import { Plus, ListTodo, Archive, BarChart2, Settings, Crosshair, Clock, Library } from "lucide-react";
 import DailyAnchors from "@/components/DailyAnchors";
 import AvatarCompanion from "@/components/AvatarCompanion";
 
@@ -233,6 +233,7 @@ export default function Home() {
             { to: "/tasks", icon: ListTodo, label: "All tasks" },
             { to: "/parking-lot", icon: Archive, label: "Parking lot" },
             { to: "/weekly-recap", icon: BarChart2, label: "Weekly recap" },
+            { to: "/resources", icon: Library, label: "Resource library" },
             { to: "/capture", icon: Plus, label: "Quick capture" },
           ].map(({ to, icon: Icon, label }) => (
             <Link
