@@ -39,8 +39,27 @@ Cutting-Edge Research section all update automatically. The same file holds the
 npm install
 npm run dev        # http://localhost:5173
 npm run build      # production build → dist/
+npm run preview    # serve the production build over HTTP
 npm run lint
 ```
+
+### Viewing the site locally
+
+> **Opening `index.html` by double-clicking it shows a blank page.** That is a
+> browser security rule, not a bug in the site: over a `file://` URL browsers
+> block external JavaScript modules and stylesheets as cross-origin (`origin:
+> null`). It applies to the source `index.html` and to `dist/index.html` alike.
+
+Pick whichever suits you:
+
+| Goal | Command | Result |
+|---|---|---|
+| Develop | `npm run dev` | Live reload at `http://localhost:5173` |
+| Check the real build | `npm run build && npm run preview` | Served over HTTP |
+| A file you can double-click or email | `npm run build:single` | `dist-single/index.html` — one self-contained file with the CSS and JS inlined, so it opens straight from disk |
+
+The `dist-single` build still reads PDFs from the `downloads/` folder beside it,
+so keep the two together when sharing.
 
 Built with Vite, React, React Router, Tailwind CSS and shadcn/ui.
 

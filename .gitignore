@@ -29,3 +29,6 @@ dist-ssr
 
 .env
 .vite
+
+# Self-contained single-file build
+dist-single
