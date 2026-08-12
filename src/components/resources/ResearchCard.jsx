@@ -1,10 +1,10 @@
-import { Download, Clock, Building2, Calendar, Sparkles } from "lucide-react";
+import { ExternalLink, Unlock, Users, Calendar, Sparkles } from "lucide-react";
 import TypeBadge from "./TypeBadge";
-import { formatPublishDate, assetUrl } from "@/lib/resources-data";
+import { formatPublishDate } from "@/lib/resources-data";
 
 // Distinct, editorial layout for the "Cutting-Edge Research" section:
-// a wider two-column card with a deep-forest accent rail and the abstract
-// surfaced by default, to highlight emerging studies.
+// a wider card with a deep-forest accent rail and the abstract surfaced by
+// default, to highlight the work the library most wants to put forward.
 export default function ResearchCard({ resource }) {
   return (
     <article
@@ -42,29 +42,26 @@ export default function ResearchCard({ resource }) {
           {resource.abstract || resource.description}
         </p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-[hsl(var(--rx-ink-faint))]">
-          <span className="flex items-center gap-1.5">
-            <Building2 aria-hidden="true" className="h-3.5 w-3.5" />
+        <div className="mt-4 flex flex-col gap-1.5 text-xs text-[hsl(var(--rx-ink-faint))]">
+          <span className="flex gap-1.5">
+            <Users aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             {resource.authorOrInstitution}
           </span>
-          <span className="flex items-center gap-1.5">
-            <Calendar aria-hidden="true" className="h-3.5 w-3.5" />
+          <span className="flex gap-1.5">
+            <Calendar aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            {resource.publication}
+            {resource.publication ? " · " : ""}
             {formatPublishDate(resource.publishDate)}
           </span>
-          {resource.readingMinutes ? (
-            <span className="flex items-center gap-1.5">
-              <Clock aria-hidden="true" className="h-3.5 w-3.5" />
-              {resource.readingMinutes} min read
-            </span>
-          ) : null}
         </div>
       </div>
 
       {/* Action column */}
-      <div className="flex items-end sm:flex-col sm:items-stretch sm:justify-center">
+      <div className="flex flex-wrap items-end gap-2 sm:flex-col sm:items-stretch sm:justify-center">
         <a
-          href={assetUrl(resource.downloadUrl)}
-          download
+          href={resource.sourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-[hsl(var(--rx-surface))] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           style={{
             backgroundColor: "hsl(var(--rx-cyan))",
@@ -72,10 +69,26 @@ export default function ResearchCard({ resource }) {
             "--tw-ring-offset-color": "hsl(var(--rx-surface))",
           }}
         >
-          <Download aria-hidden="true" className="h-4 w-4" />
-          Download Study
-          <span className="sr-only">: {resource.title}</span>
+          <ExternalLink aria-hidden="true" className="h-4 w-4" />
+          Read paper
+          <span className="sr-only">: {resource.title} (opens in a new tab)</span>
         </a>
+
+        {resource.openAccessUrl && (
+          <a
+            href={resource.openAccessUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg border px-5 py-2.5 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
+            style={{ borderColor: "hsl(var(--rx-cyan) / 0.4)" }}
+          >
+            <Unlock aria-hidden="true" className="h-4 w-4" />
+            Free full text
+            <span className="sr-only">
+              for {resource.title} (opens in a new tab)
+            </span>
+          </a>
+        )}
       </div>
     </article>
   );

@@ -7,9 +7,8 @@ import {
   Cpu,
   Sparkles,
   Info,
-  Download,
+  ExternalLink,
 } from "lucide-react";
-import { assetUrl } from "@/lib/resources-data";
 
 // Modality → icon.
 const MODALITY_ICON = {
@@ -130,17 +129,26 @@ export default function DiagnosticCard({ diagnostic }) {
         </div>
       </dl>
 
-      {diagnostic.downloadUrl && (
-        <div className="mt-auto pt-4">
+      {diagnostic.evidenceUrl && (
+        <div
+          className="mt-auto border-t pt-4"
+          style={{ borderColor: "hsl(var(--rx-line))" }}
+        >
+          <p className="text-[0.72rem] leading-relaxed text-[hsl(var(--rx-ink-faint))]">
+            {diagnostic.evidenceCitation}
+          </p>
           <a
-            href={assetUrl(diagnostic.downloadUrl)}
-            download
-            className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
+            href={diagnostic.evidenceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
             style={{ borderColor: "hsl(var(--rx-cyan) / 0.4)" }}
           >
-            <Download aria-hidden="true" className="h-4 w-4" />
-            Download briefing
-            <span className="sr-only">: {diagnostic.modality}</span>
+            <ExternalLink aria-hidden="true" className="h-4 w-4" />
+            View the evidence
+            <span className="sr-only">
+              for {diagnostic.modality} (opens in a new tab)
+            </span>
           </a>
         </div>
       )}

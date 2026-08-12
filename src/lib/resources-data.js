@@ -12,17 +12,10 @@ export const supplements = data.supplements || [];
 export const diagnostics = data.diagnostics || [];
 
 export const RESOURCE_TYPES = [
-  "Whitepaper",
-  "Clinical Study",
-  "Worksheet",
-  "Toolkit",
-];
-
-// Format an ISO date (YYYY-MM-DD) as e.g. "September 2025" without pulling in
-// a date library or tripping on timezone offsets from `new Date("YYYY-MM-DD")`.
-const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "Journal Article",
+  "Review",
+  "Meta-Analysis",
+  "Consensus Statement",
 ];
 
 // Resolve a `/downloads/...` path against the deployed base path. Locally the
@@ -34,9 +27,18 @@ export function assetUrl(path) {
   return `${base.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
 }
 
+// Format a publication date for display. Accepts a full ISO date
+// ("2020-06-01" → "June 2020") or a bare year ("2012" → "2012"), because the
+// exact month is not always known for older papers.
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
 export function formatPublishDate(iso) {
   if (typeof iso !== "string") return "";
   const [year, month] = iso.split("-");
+  if (!month) return year;
   const idx = Number(month) - 1;
   if (!year || Number.isNaN(idx) || idx < 0 || idx > 11) return iso;
   return `${MONTHS[idx]} ${year}`;
