@@ -1,0 +1,2019 @@
+From 8d7e9c08611238f5bba7757072c16018c1a83d02 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 12 Aug 2026 15:03:56 +0000
+Subject: [PATCH] Replace invented catalogue with verified published research
+
+Every resource, supplement and diagnostic entry was fabricated: invented
+authors, institutions and dates, backed by 20 placeholder PDFs that only
+said "Placeholder document". Presented as a citable library on a mental
+health site, that risked people citing studies that do not exist. The
+"Milton & Fen-Hollande Research Group" attribution was the worst case,
+attaching a fake study to a real autism researcher.
+
+The catalogue is now built entirely from real publications, each checked
+against publisher and PubMed records for title, authors, journal,
+volume/issue, pages and DOI:
+
+- Milton (2012) double empathy; Murray, Lesser & Lawson (2005)
+  monotropism; Crompton et al. (2020) autistic peer-to-peer transfer
+- Raymaker et al. (2020) autistic burnout; Newson et al. (2003) PDA
+- Faraone et al. (2021) World Federation of ADHD consensus statement
+- Quadt, Critchley & Garfinkel (2018) interoception
+- Reis, Baum & Burke (2014) twice-exceptional definition
+- Diagnostics: Arns et al. (2013) EEG, Jones & Klin (2013) eye-tracking,
+  Ecker et al. (2015) MRI, Demontis et al. (2019) ADHD genetics
+- Supplements: Bloch & Qawasmi (2011) omega-3, Wang et al. (2017) iron,
+  and a zinc dose-response meta-analysis
+
+Entries now link out to the DOI rather than redistributing papers we have
+no licence to host, with free full text flagged where it exists.
+downloadUrl stays supported but optional, for documents the site may
+lawfully host; all placeholder PDFs are deleted.
+
+Claims are written to match what the studies actually found, including
+where they are negative: the EEG entry now records that theta/beta ratio
+was judged unreliable as a diagnostic, rather than implying otherwise.
+
+Modalities and supplements without a verifiable source (CPT, digital
+phenotyping, magnesium, vitamin D, L-theanine) are removed rather than
+kept on unsourced claims.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_018n5uk3aN6XVPj6PZQiVhqe
+---
+ public/downloads/README.md                    |  99 +++--
+ .../adhd-time-blindness-worksheet.pdf         |  38 --
+ ...asynchronous-development-2e-whitepaper.pdf |  38 --
+ .../audhd-support-needs-whitepaper.pdf        |  38 --
+ .../autistic-burnout-recovery-study.pdf       |  38 --
+ ...dy-doubling-task-initiation-whitepaper.pdf |  38 --
+ .../continuous-performance-test-briefing.pdf  |  38 --
+ public/downloads/eeg-qeeg-briefing.pdf        |  38 --
+ ...executive-function-scaffolding-toolkit.pdf |  38 --
+ public/downloads/eye-tracking-briefing.pdf    |  38 --
+ .../interoception-building-worksheet.pdf      |  38 --
+ ...interoception-sensory-regulation-study.pdf |  38 --
+ public/downloads/magnesium-guide.pdf          |  38 --
+ .../monotropic-flow-environments-toolkit.pdf  |  38 --
+ .../monotropism-double-empathy-study.pdf      |  38 --
+ public/downloads/mri-fmri-briefing.pdf        |  38 --
+ .../neuroaffirming-paradigm-shift-study.pdf   |  38 --
+ public/downloads/omega-3-guide.pdf            |  38 --
+ public/downloads/pda-nervous-system-study.pdf |  38 --
+ .../sensory-diet-planning-worksheet.pdf       |  38 --
+ ...-exceptional-identification-whitepaper.pdf |  38 --
+ src/components/resources/DiagnosticCard.jsx   |  28 +-
+ src/components/resources/ResearchCard.jsx     |  55 ++-
+ src/components/resources/ResourceCard.jsx     |  87 +++-
+ src/components/resources/SupplementCard.jsx   |  28 +-
+ src/components/resources/TypeBadge.jsx        |  14 +-
+ src/data/resources.json                       | 420 +++++++-----------
+ src/lib/resources-data.js                     |  24 +-
+ src/pages/Resources.jsx                       |  18 +-
+ 29 files changed, 379 insertions(+), 1154 deletions(-)
+
+diff --git a/public/downloads/README.md b/public/downloads/README.md
+index 92930d9..8ee0579 100644
+--- a/public/downloads/README.md
++++ b/public/downloads/README.md
+@@ -1,49 +1,70 @@
+ # /public/downloads
+ 
+-This folder holds the downloadable resource files (PDFs, worksheets, toolkits)
+-served by the Neurodivergence Library at `/resources`.
+-
+-## Adding a new resource (2 steps, no code)
+-
+-1. **Drop the file here.** e.g. `public/downloads/my-new-study.pdf`
+-2. **Append one JSON object** to the `resources` array in
+-   [`src/data/resources.json`](../../src/data/resources.json):
+-
+-   ```json
+-   {
+-     "id": "my-new-study",
+-     "title": "My New Study",
+-     "description": "One-line summary shown on the card.",
+-     "category": "Autism & AuDHD",
+-     "type": "Clinical Study",
+-     "authorOrInstitution": "Some Research Group",
+-     "publishDate": "2026-03-01",
+-     "downloadUrl": "/downloads/my-new-study.pdf",
+-     "abstract": "Optional longer abstract shown in the Read Abstract panel.",
+-     "featured": true,
+-     "readingMinutes": 20
+-   }
+-   ```
+-
+-That's it — the card, the category filter, and (if `"featured": true`) the
+-**Cutting-Edge Research** section all update automatically.
++This folder hosts downloadable files for the library. **It is empty by design.**
++
++The library links out to publishers and DOIs rather than redistributing papers,
++because we do not hold the rights to host most published research. Use this
++folder only for documents you have the right to distribute — material you wrote,
++or work under a licence that permits redistribution.
++
++## Adding a resource
++
++Append one object to the `resources` array in
++[`src/data/resources.json`](../../src/data/resources.json):
++
++```json
++{
++  "id": "author-year-topic",
++  "title": "The exact published title",
++  "description": "Plain-language summary of what the work actually found.",
++  "category": "Autism & AuDHD",
++  "type": "Journal Article",
++  "authorOrInstitution": "Real authors, as published",
++  "publication": "Journal Name, 12(3), 45–67",
++  "publishDate": "2020-06-01",
++  "sourceUrl": "https://doi.org/10.xxxx/xxxxx",
++  "openAccessUrl": "https://optional-free-full-text",
++  "abstract": "Optional longer summary shown in the Abstract panel.",
++  "featured": true
++}
++```
++
++The card, the filter counts, and — with `"featured": true` — the Cutting-Edge
++Research section all update automatically.
++
++### Before you add anything
++
++1. **Check the DOI resolves.** Paste `sourceUrl` into a browser; it must land on
++   the real paper.
++2. **Use the real authors and journal.** Never approximate a citation.
++3. **Describe what the study actually found**, including its limitations. Several
++   entries here exist specifically to record that a method is *not* diagnostic.
++4. **Prefer open access.** Set `openAccessUrl` when a legitimate free copy exists
++   (PMC, a university repository, or the publisher's own OA version).
++
++## Hosting a file
++
++Only if you hold the rights: drop the file here and add
++`"downloadUrl": "/downloads/your-file.pdf"` to the entry. A "Download" button
++then appears alongside "Read paper".
+ 
+ ## Field reference
+ 
+ | Field | Required | Notes |
+ |-------|----------|-------|
+ | `id` | yes | unique, stable, kebab-case |
+-| `title` | yes | resource title |
+-| `description` | yes | short summary on the card |
+-| `category` | yes | must exactly match one of the `categories` in `resources.json` |
+-| `type` | yes | `Whitepaper` · `Clinical Study` · `Worksheet` · `Toolkit` |
+-| `authorOrInstitution` | yes | author / research group / institution |
+-| `publishDate` | yes | ISO 8601, e.g. `2026-03-01` |
+-| `downloadUrl` | yes | `/downloads/<filename>` |
+-| `abstract` | no | shown in the *Read Abstract* panel & on research cards |
++| `title` | yes | exact published title |
++| `description` | yes | short, accurate summary |
++| `category` | yes | must exactly match one of the `categories` |
++| `type` | yes | `Journal Article` · `Review` · `Meta-Analysis` · `Consensus Statement` |
++| `authorOrInstitution` | yes | real authors, as published |
++| `publication` | yes | journal, volume/issue, pages |
++| `publishDate` | yes | `YYYY` or `YYYY-MM-DD` — year-only when the month isn't certain |
++| `sourceUrl` | yes | canonical DOI link |
++| `openAccessUrl` | no | free full text, if one exists |
++| `abstract` | no | shown in the *Abstract* panel and on featured cards |
+ | `featured` | no | `true` surfaces it in *Cutting-Edge Research* |
+-| `readingMinutes` | no | estimated reading time (research cards) |
++| `downloadUrl` | no | only for files you may lawfully host |
+ 
+-> The `.pdf` files currently in this folder are lightweight placeholders so the
+-> download links resolve during development. Replace them with the real
+-> documents.
++The `supplements` and `diagnostics` arrays follow the same rule: each carries an
++`evidenceCitation` and an `evidenceUrl` pointing at the study behind the claim.
+diff --git a/public/downloads/adhd-time-blindness-worksheet.pdf b/public/downloads/adhd-time-blindness-worksheet.pdf
+deleted file mode 100644
+index 15617ad..0000000
+--- a/public/downloads/adhd-time-blindness-worksheet.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 221 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Time-Blindness & Task Estimation Worksheet) Tj
+-/F1 12 Tf
+-0 -28 Td (Worksheet  |  Dr. Priya Raghunathan, Clinical Psychologist) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000513 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-583
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/asynchronous-development-2e-whitepaper.pdf b/public/downloads/asynchronous-development-2e-whitepaper.pdf
+deleted file mode 100644
+index 61ca659..0000000
+--- a/public/downloads/asynchronous-development-2e-whitepaper.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 227 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Asynchronous Development in Gifted & 2e Learners) Tj
+-/F1 12 Tf
+-0 -28 Td (Whitepaper  |  Centre for Gifted & Neurodivergent Learning) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000519 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-589
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/audhd-support-needs-whitepaper.pdf b/public/downloads/audhd-support-needs-whitepaper.pdf
+deleted file mode 100644
+index 4f0d3e2..0000000
+--- a/public/downloads/audhd-support-needs-whitepaper.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 221 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (AuDHD: Living at the Intersection of Two Neurotypes) Tj
+-/F1 12 Tf
+-0 -28 Td (Whitepaper  |  Neurodivergent Research Collective) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000513 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-583
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/autistic-burnout-recovery-study.pdf b/public/downloads/autistic-burnout-recovery-study.pdf
+deleted file mode 100644
+index a33fa9f..0000000
+--- a/public/downloads/autistic-burnout-recovery-study.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 216 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Autistic Burnout: Recognition and Recovery) Tj
+-/F1 12 Tf
+-0 -28 Td (Clinical Study  |  Neurodivergent Research Collective) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000508 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-578
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/body-doubling-task-initiation-whitepaper.pdf b/public/downloads/body-doubling-task-initiation-whitepaper.pdf
+deleted file mode 100644
+index 9b66132..0000000
+--- a/public/downloads/body-doubling-task-initiation-whitepaper.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 227 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Body Doubling: The Social Scaffold for Task Initiation) Tj
+-/F1 12 Tf
+-0 -28 Td (Whitepaper  |  Institute for Neuroaffirming Practice) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000519 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-589
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/continuous-performance-test-briefing.pdf b/public/downloads/continuous-performance-test-briefing.pdf
+deleted file mode 100644
+index bd030b5..0000000
+--- a/public/downloads/continuous-performance-test-briefing.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 198 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Continuous Performance Tests \(CPT\)) Tj
+-/F1 12 Tf
+-0 -28 Td (Diagnostics briefing  |  Clinical adjunct) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000490 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-560
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/eeg-qeeg-briefing.pdf b/public/downloads/eeg-qeeg-briefing.pdf
+deleted file mode 100644
+index 59da83e..0000000
+--- a/public/downloads/eeg-qeeg-briefing.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 172 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (EEG & qEEG) Tj
+-/F1 12 Tf
+-0 -28 Td (Diagnostics briefing  |  Clinical adjunct) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000464 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-534
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/executive-function-scaffolding-toolkit.pdf b/public/downloads/executive-function-scaffolding-toolkit.pdf
+deleted file mode 100644
+index 2054a0f..0000000
+--- a/public/downloads/executive-function-scaffolding-toolkit.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 226 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Executive Function Scaffolding: A Practitioner's Toolkit) Tj
+-/F1 12 Tf
+-0 -28 Td (Toolkit  |  Institute for Neuroaffirming Practice) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000518 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-588
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/eye-tracking-briefing.pdf b/public/downloads/eye-tracking-briefing.pdf
+deleted file mode 100644
+index 99f76d4..0000000
+--- a/public/downloads/eye-tracking-briefing.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 166 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Eye-Tracking) Tj
+-/F1 12 Tf
+-0 -28 Td (Diagnostics briefing  |  Emerging) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000458 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-528
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/interoception-building-worksheet.pdf b/public/downloads/interoception-building-worksheet.pdf
+deleted file mode 100644
+index 176bcca..0000000
+--- a/public/downloads/interoception-building-worksheet.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 209 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Interoception-Building Activities Worksheet) Tj
+-/F1 12 Tf
+-0 -28 Td (Worksheet  |  Coastal Neurodevelopment Centre) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000501 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-571
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/interoception-sensory-regulation-study.pdf b/public/downloads/interoception-sensory-regulation-study.pdf
+deleted file mode 100644
+index 0c63eab..0000000
+--- a/public/downloads/interoception-sensory-regulation-study.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 227 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Interoception as the Missing Layer in Sensory Regulation) Tj
+-/F1 12 Tf
+-0 -28 Td (Clinical Study  |  Coastal Neurodevelopment Centre) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000519 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-589
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/magnesium-guide.pdf b/public/downloads/magnesium-guide.pdf
+deleted file mode 100644
+index fc9e78d..0000000
+--- a/public/downloads/magnesium-guide.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 182 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Magnesium \(glycinate\)) Tj
+-/F1 12 Tf
+-0 -28 Td (Supplement guide  |  Moderate evidence) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000474 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-544
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/monotropic-flow-environments-toolkit.pdf b/public/downloads/monotropic-flow-environments-toolkit.pdf
+deleted file mode 100644
+index 120d0da..0000000
+--- a/public/downloads/monotropic-flow-environments-toolkit.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 205 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Designing for Monotropic Flow) Tj
+-/F1 12 Tf
+-0 -28 Td (Toolkit  |  Occupational Therapy Neuroaffirming Network) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000497 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-567
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/monotropism-double-empathy-study.pdf b/public/downloads/monotropism-double-empathy-study.pdf
+deleted file mode 100644
+index 26a1b4c..0000000
+--- a/public/downloads/monotropism-double-empathy-study.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 240 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Monotropism and the Double Empathy Problem: A Bridging Framework) Tj
+-/F1 12 Tf
+-0 -28 Td (Clinical Study  |  Milton & Fen-Hollande Research Group) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000532 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-602
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/mri-fmri-briefing.pdf b/public/downloads/mri-fmri-briefing.pdf
+deleted file mode 100644
+index a62f429..0000000
+--- a/public/downloads/mri-fmri-briefing.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 186 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Structural & Functional MRI) Tj
+-/F1 12 Tf
+-0 -28 Td (Diagnostics briefing  |  Research only) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000478 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-548
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/neuroaffirming-paradigm-shift-study.pdf b/public/downloads/neuroaffirming-paradigm-shift-study.pdf
+deleted file mode 100644
+index 1d52e98..0000000
+--- a/public/downloads/neuroaffirming-paradigm-shift-study.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 244 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (From Remediation to Affirmation: A Paradigm Shift in Practice) Tj
+-/F1 12 Tf
+-0 -28 Td (Clinical Study  |  Journal of Neuroaffirming Clinical Practice) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000536 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-606
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/omega-3-guide.pdf b/public/downloads/omega-3-guide.pdf
+deleted file mode 100644
+index f0b0c4a..0000000
+--- a/public/downloads/omega-3-guide.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 173 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Omega-3 \(EPA/DHA\)) Tj
+-/F1 12 Tf
+-0 -28 Td (Supplement guide  |  Well-studied) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000465 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-535
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/pda-nervous-system-study.pdf b/public/downloads/pda-nervous-system-study.pdf
+deleted file mode 100644
+index 117770b..0000000
+--- a/public/downloads/pda-nervous-system-study.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 226 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Demand Avoidance \(PDA\): A Nervous-System Framing) Tj
+-/F1 12 Tf
+-0 -28 Td (Clinical Study  |  Milton & Fen-Hollande Research Group) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000518 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-588
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/sensory-diet-planning-worksheet.pdf b/public/downloads/sensory-diet-planning-worksheet.pdf
+deleted file mode 100644
+index c06bfa4..0000000
+--- a/public/downloads/sensory-diet-planning-worksheet.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 209 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Sensory Diet Planning Worksheet) Tj
+-/F1 12 Tf
+-0 -28 Td (Worksheet  |  Occupational Therapy Neuroaffirming Network) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000501 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-571
+-%%EOF
+\ No newline at end of file
+diff --git a/public/downloads/twice-exceptional-identification-whitepaper.pdf b/public/downloads/twice-exceptional-identification-whitepaper.pdf
+deleted file mode 100644
+index 7bc6bfb..0000000
+--- a/public/downloads/twice-exceptional-identification-whitepaper.pdf
++++ /dev/null
+@@ -1,38 +0,0 @@
+-%PDF-1.4
+-1 0 obj
+-<< /Type /Catalog /Pages 2 0 R >>
+-endobj
+-2 0 obj
+-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+-endobj
+-3 0 obj
+-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+-endobj
+-4 0 obj
+-<< /Length 227 >>
+-stream
+-BT
+-/F1 20 Tf
+-72 720 Td (Recognising the Twice-Exceptional \(2e\) Learner) Tj
+-/F1 12 Tf
+-0 -28 Td (Whitepaper  |  Centre for Gifted & Neurodivergent Learning) Tj
+-0 -22 Td (Placeholder document - replace with the real file.) Tj
+-ET
+-endstream
+-endobj
+-5 0 obj
+-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+-endobj
+-xref
+-0 6
+-0000000000 65535 f 
+-0000000009 00000 n 
+-0000000058 00000 n 
+-0000000115 00000 n 
+-0000000241 00000 n 
+-0000000519 00000 n 
+-trailer
+-<< /Size 6 /Root 1 0 R >>
+-startxref
+-589
+-%%EOF
+\ No newline at end of file
+diff --git a/src/components/resources/DiagnosticCard.jsx b/src/components/resources/DiagnosticCard.jsx
+index 41c7811..e3c0a73 100644
+--- a/src/components/resources/DiagnosticCard.jsx
++++ b/src/components/resources/DiagnosticCard.jsx
+@@ -7,9 +7,8 @@ import {
+   Cpu,
+   Sparkles,
+   Info,
+-  Download,
++  ExternalLink,
+ } from "lucide-react";
+-import { assetUrl } from "@/lib/resources-data";
+ 
+ // Modality → icon.
+ const MODALITY_ICON = {
+@@ -130,17 +129,26 @@ export default function DiagnosticCard({ diagnostic }) {
+         </div>
+       </dl>
+ 
+-      {diagnostic.downloadUrl && (
+-        <div className="mt-auto pt-4">
++      {diagnostic.evidenceUrl && (
++        <div
++          className="mt-auto border-t pt-4"
++          style={{ borderColor: "hsl(var(--rx-line))" }}
++        >
++          <p className="text-[0.72rem] leading-relaxed text-[hsl(var(--rx-ink-faint))]">
++            {diagnostic.evidenceCitation}
++          </p>
+           <a
+-            href={assetUrl(diagnostic.downloadUrl)}
+-            download
+-            className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
++            href={diagnostic.evidenceUrl}
++            target="_blank"
++            rel="noopener noreferrer"
++            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
+             style={{ borderColor: "hsl(var(--rx-cyan) / 0.4)" }}
+           >
+-            <Download aria-hidden="true" className="h-4 w-4" />
+-            Download briefing
+-            <span className="sr-only">: {diagnostic.modality}</span>
++            <ExternalLink aria-hidden="true" className="h-4 w-4" />
++            View the evidence
++            <span className="sr-only">
++              for {diagnostic.modality} (opens in a new tab)
++            </span>
+           </a>
+         </div>
+       )}
+diff --git a/src/components/resources/ResearchCard.jsx b/src/components/resources/ResearchCard.jsx
+index ecca33b..6176691 100644
+--- a/src/components/resources/ResearchCard.jsx
++++ b/src/components/resources/ResearchCard.jsx
+@@ -1,10 +1,10 @@
+-import { Download, Clock, Building2, Calendar, Sparkles } from "lucide-react";
++import { ExternalLink, Unlock, Users, Calendar, Sparkles } from "lucide-react";
+ import TypeBadge from "./TypeBadge";
+-import { formatPublishDate, assetUrl } from "@/lib/resources-data";
++import { formatPublishDate } from "@/lib/resources-data";
+ 
+ // Distinct, editorial layout for the "Cutting-Edge Research" section:
+-// a wider two-column card with a deep-forest accent rail and the abstract
+-// surfaced by default, to highlight emerging studies.
++// a wider card with a deep-forest accent rail and the abstract surfaced by
++// default, to highlight the work the library most wants to put forward.
+ export default function ResearchCard({ resource }) {
+   return (
+     <article
+@@ -42,29 +42,26 @@ export default function ResearchCard({ resource }) {
+           {resource.abstract || resource.description}
+         </p>
+ 
+-        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-[hsl(var(--rx-ink-faint))]">
+-          <span className="flex items-center gap-1.5">
+-            <Building2 aria-hidden="true" className="h-3.5 w-3.5" />
++        <div className="mt-4 flex flex-col gap-1.5 text-xs text-[hsl(var(--rx-ink-faint))]">
++          <span className="flex gap-1.5">
++            <Users aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+             {resource.authorOrInstitution}
+           </span>
+-          <span className="flex items-center gap-1.5">
+-            <Calendar aria-hidden="true" className="h-3.5 w-3.5" />
++          <span className="flex gap-1.5">
++            <Calendar aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
++            {resource.publication}
++            {resource.publication ? " · " : ""}
+             {formatPublishDate(resource.publishDate)}
+           </span>
+-          {resource.readingMinutes ? (
+-            <span className="flex items-center gap-1.5">
+-              <Clock aria-hidden="true" className="h-3.5 w-3.5" />
+-              {resource.readingMinutes} min read
+-            </span>
+-          ) : null}
+         </div>
+       </div>
+ 
+       {/* Action column */}
+-      <div className="flex items-end sm:flex-col sm:items-stretch sm:justify-center">
++      <div className="flex flex-wrap items-end gap-2 sm:flex-col sm:items-stretch sm:justify-center">
+         <a
+-          href={assetUrl(resource.downloadUrl)}
+-          download
++          href={resource.sourceUrl}
++          target="_blank"
++          rel="noopener noreferrer"
+           className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-[hsl(var(--rx-surface))] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+           style={{
+             backgroundColor: "hsl(var(--rx-cyan))",
+@@ -72,10 +69,26 @@ export default function ResearchCard({ resource }) {
+             "--tw-ring-offset-color": "hsl(var(--rx-surface))",
+           }}
+         >
+-          <Download aria-hidden="true" className="h-4 w-4" />
+-          Download Study
+-          <span className="sr-only">: {resource.title}</span>
++          <ExternalLink aria-hidden="true" className="h-4 w-4" />
++          Read paper
++          <span className="sr-only">: {resource.title} (opens in a new tab)</span>
+         </a>
++
++        {resource.openAccessUrl && (
++          <a
++            href={resource.openAccessUrl}
++            target="_blank"
++            rel="noopener noreferrer"
++            className="inline-flex items-center justify-center gap-1.5 rounded-lg border px-5 py-2.5 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
++            style={{ borderColor: "hsl(var(--rx-cyan) / 0.4)" }}
++          >
++            <Unlock aria-hidden="true" className="h-4 w-4" />
++            Free full text
++            <span className="sr-only">
++              for {resource.title} (opens in a new tab)
++            </span>
++          </a>
++        )}
+       </div>
+     </article>
+   );
+diff --git a/src/components/resources/ResourceCard.jsx b/src/components/resources/ResourceCard.jsx
+index 9398a5c..7ddefd7 100644
+--- a/src/components/resources/ResourceCard.jsx
++++ b/src/components/resources/ResourceCard.jsx
+@@ -1,5 +1,13 @@
+ import { useId, useState } from "react";
+-import { Download, BookOpen, ChevronDown, Calendar, Building2 } from "lucide-react";
++import {
++  Download,
++  BookOpen,
++  ChevronDown,
++  ExternalLink,
++  Unlock,
++  Calendar,
++  Users,
++} from "lucide-react";
+ import TypeBadge from "./TypeBadge";
+ import { formatPublishDate, assetUrl } from "@/lib/resources-data";
+ 
+@@ -15,7 +23,7 @@ export default function ResourceCard({ resource }) {
+     >
+       <div className="mb-3 flex items-center justify-between gap-3">
+         <TypeBadge type={resource.type} />
+-        <span className="text-[0.7rem] font-medium uppercase tracking-[0.08em] text-[hsl(var(--rx-ink-faint))]">
++        <span className="text-right text-[0.7rem] font-medium uppercase tracking-[0.08em] text-[hsl(var(--rx-ink-faint))]">
+           {resource.category}
+         </span>
+       </div>
+@@ -29,15 +37,19 @@ export default function ResourceCard({ resource }) {
+       </p>
+ 
+       <dl className="mt-4 space-y-1.5 text-xs text-[hsl(var(--rx-ink-faint))]">
+-        <div className="flex items-center gap-2">
+-          <dt className="sr-only">Author or institution</dt>
+-          <Building2 aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
++        <div className="flex gap-2">
++          <dt className="sr-only">Authors</dt>
++          <Users aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+           <dd>{resource.authorOrInstitution}</dd>
+         </div>
+-        <div className="flex items-center gap-2">
+-          <dt className="sr-only">Published</dt>
+-          <Calendar aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+-          <dd>{formatPublishDate(resource.publishDate)}</dd>
++        <div className="flex gap-2">
++          <dt className="sr-only">Published in</dt>
++          <Calendar aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
++          <dd>
++            {resource.publication}
++            {resource.publication ? " · " : ""}
++            {formatPublishDate(resource.publishDate)}
++          </dd>
+         </div>
+       </dl>
+ 
+@@ -52,29 +64,66 @@ export default function ResourceCard({ resource }) {
+       )}
+ 
+       {/* Actions */}
+-      <div className="mt-5 flex flex-wrap items-center gap-2 border-t pt-4" style={{ borderColor: "hsl(var(--rx-line))" }}>
++      <div
++        className="mt-auto flex flex-wrap items-center gap-2 border-t pt-4"
++        style={{ borderColor: "hsl(var(--rx-line))" }}
++      >
+         <a
+-          href={assetUrl(resource.downloadUrl)}
+-          download
++          href={resource.sourceUrl}
++          target="_blank"
++          rel="noopener noreferrer"
+           className="inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-surface))] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+-          style={{ backgroundColor: "hsl(var(--rx-forest))", "--tw-ring-color": "hsl(var(--rx-cyan))", "--tw-ring-offset-color": "hsl(var(--rx-surface))" }}
++          style={{
++            backgroundColor: "hsl(var(--rx-forest))",
++            "--tw-ring-color": "hsl(var(--rx-cyan))",
++            "--tw-ring-offset-color": "hsl(var(--rx-surface))",
++          }}
+         >
+-          <Download aria-hidden="true" className="h-4 w-4" />
+-          Download PDF
+-          <span className="sr-only">: {resource.title}</span>
++          <ExternalLink aria-hidden="true" className="h-4 w-4" />
++          Read paper
++          <span className="sr-only">: {resource.title} (opens in a new tab)</span>
+         </a>
+ 
++        {resource.openAccessUrl && (
++          <a
++            href={resource.openAccessUrl}
++            target="_blank"
++            rel="noopener noreferrer"
++            className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
++            style={{ borderColor: "hsl(var(--rx-cyan) / 0.4)" }}
++          >
++            <Unlock aria-hidden="true" className="h-4 w-4" />
++            Free full text
++            <span className="sr-only">
++              for {resource.title} (opens in a new tab)
++            </span>
++          </a>
++        )}
++
++        {/* Only for documents the site has the right to host. */}
++        {resource.downloadUrl && (
++          <a
++            href={assetUrl(resource.downloadUrl)}
++            download
++            className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-ink-soft))] transition-colors hover:bg-[hsl(var(--rx-surface-2))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
++            style={{ borderColor: "hsl(var(--rx-line-strong))" }}
++          >
++            <Download aria-hidden="true" className="h-4 w-4" />
++            Download
++            <span className="sr-only">: {resource.title}</span>
++          </a>
++        )}
++
+         {hasAbstract && (
+           <button
+             type="button"
+             onClick={() => setOpen((v) => !v)}
+             aria-expanded={open}
+             aria-controls={abstractId}
+-            className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
+-            style={{ borderColor: "hsl(var(--rx-cyan) / 0.4)" }}
++            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-[hsl(var(--rx-ink-soft))] transition-colors hover:text-[hsl(var(--rx-forest))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
+           >
+             <BookOpen aria-hidden="true" className="h-4 w-4" />
+-            {open ? "Hide Abstract" : "Read Abstract"}
++            {open ? "Hide" : "Abstract"}
+             <ChevronDown
+               aria-hidden="true"
+               className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`}
+diff --git a/src/components/resources/SupplementCard.jsx b/src/components/resources/SupplementCard.jsx
+index 6b3feda..77fe077 100644
+--- a/src/components/resources/SupplementCard.jsx
++++ b/src/components/resources/SupplementCard.jsx
+@@ -1,5 +1,4 @@
+-import { Pill, ShieldCheck, Download } from "lucide-react";
+-import { assetUrl } from "@/lib/resources-data";
++import { Pill, ShieldCheck, ExternalLink } from "lucide-react";
+ 
+ // Evidence strength → calm green/blue accent (never a "warning" red/amber).
+ const EVIDENCE_META = {
+@@ -88,17 +87,26 @@ export default function SupplementCard({ supplement }) {
+         </div>
+       </div>
+ 
+-      {supplement.downloadUrl && (
+-        <div className="mt-auto pt-4">
++      {supplement.evidenceUrl && (
++        <div
++          className="mt-auto border-t pt-4"
++          style={{ borderColor: "hsl(var(--rx-line))" }}
++        >
++          <p className="text-[0.72rem] leading-relaxed text-[hsl(var(--rx-ink-faint))]">
++            {supplement.evidenceCitation}
++          </p>
+           <a
+-            href={assetUrl(supplement.downloadUrl)}
+-            download
+-            className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
++            href={supplement.evidenceUrl}
++            target="_blank"
++            rel="noopener noreferrer"
++            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
+             style={{ borderColor: "hsl(var(--rx-cyan) / 0.4)" }}
+           >
+-            <Download aria-hidden="true" className="h-4 w-4" />
+-            Download guide
+-            <span className="sr-only">: {supplement.name}</span>
++            <ExternalLink aria-hidden="true" className="h-4 w-4" />
++            View the evidence
++            <span className="sr-only">
++              for {supplement.name} (opens in a new tab)
++            </span>
+           </a>
+         </div>
+       )}
+diff --git a/src/components/resources/TypeBadge.jsx b/src/components/resources/TypeBadge.jsx
+index e0b99b7..397201f 100644
+--- a/src/components/resources/TypeBadge.jsx
++++ b/src/components/resources/TypeBadge.jsx
+@@ -1,15 +1,15 @@
+-import { FileText, FlaskConical, ClipboardList, Wrench } from "lucide-react";
++import { FileText, Layers, Sigma, Landmark } from "lucide-react";
+ 
+-// Maps each resource `type` to an icon and a calm accent (green/blue only).
++// Maps each publication `type` to an icon and a calm accent (green/blue only).
+ const TYPE_META = {
+-  Whitepaper: { Icon: FileText, accent: "var(--rx-blue)" },
+-  "Clinical Study": { Icon: FlaskConical, accent: "var(--rx-cyan)" },
+-  Worksheet: { Icon: ClipboardList, accent: "var(--rx-sage)" },
+-  Toolkit: { Icon: Wrench, accent: "var(--rx-forest)" },
++  "Journal Article": { Icon: FileText, accent: "var(--rx-blue)" },
++  Review: { Icon: Layers, accent: "var(--rx-cyan)" },
++  "Meta-Analysis": { Icon: Sigma, accent: "var(--rx-sage)" },
++  "Consensus Statement": { Icon: Landmark, accent: "var(--rx-forest)" },
+ };
+ 
+ export default function TypeBadge({ type, className = "" }) {
+-  const { Icon, accent } = TYPE_META[type] || TYPE_META.Whitepaper;
++  const { Icon, accent } = TYPE_META[type] || TYPE_META["Journal Article"];
+   return (
+     <span
+       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.68rem] font-medium uppercase tracking-[0.09em] ${className}`}
+diff --git a/src/data/resources.json b/src/data/resources.json
+index 2337095..f3dab32 100644
+--- a/src/data/resources.json
++++ b/src/data/resources.json
+@@ -1,39 +1,20 @@
+ {
+   "$schema": {
+-    "description": "Centralized resource catalogue for the Neurodivergence Library. To publish a new resource: (1) drop the file into /public/downloads, then (2) append one object to the `resources` array below. No component changes are required.",
++    "description": "Centralized catalogue for the Neurodivergence Library. Every entry must be a real, verifiable publication: check the DOI resolves before adding it. Entries link out to the publisher rather than redistributing PDFs we have no licence to host. To add a resource, append one object to the `resources` array. If you hold the rights to a document, you may additionally drop the file into /public/downloads and set `downloadUrl`.",
+     "fields": {
+       "id": "string — unique, stable, kebab-case slug",
+-      "title": "string — the resource title",
+-      "description": "string — one or two sentence plain-language summary shown on the card",
++      "title": "string — the publication's exact title",
++      "description": "string — plain-language summary of what the work actually found",
+       "category": "string — MUST match one of the values in `categories` exactly",
+-      "type": "string — one of: Whitepaper | Clinical Study | Worksheet | Toolkit",
+-      "authorOrInstitution": "string — author, research group, or publishing institution",
+-      "publishDate": "string — ISO 8601 date, e.g. 2025-11-02",
+-      "downloadUrl": "string — path to the file, e.g. /downloads/my-file.pdf (relative to /public)",
+-      "abstract": "string (optional) — longer editorial abstract; shown in the 'Read Abstract' panel and on research cards",
+-      "featured": "boolean (optional) — when true, the resource is surfaced in the 'Cutting-Edge Research' section",
+-      "readingMinutes": "number (optional) — estimated reading time, shown on research cards"
+-    },
+-    "supplementFields": {
+-      "id": "string — unique, stable, kebab-case slug",
+-      "name": "string — supplement name, e.g. 'Omega-3 (EPA/DHA)'",
+-      "supports": "string — short line describing what it may support",
+-      "relatedArea": "string — a focus area, or 'General regulation'",
+-      "evidenceLevel": "string — one of: Well-studied | Moderate evidence | Emerging",
+-      "summary": "string — neutral, evidence-led paragraph",
+-      "considerations": "string — practical, safety-first notes (testing, interactions)",
+-      "downloadUrl": "string (optional) — path to a guide in /downloads"
+-    },
+-    "diagnosticFields": {
+-      "id": "string — unique, stable, kebab-case slug",
+-      "modality": "string — method name, e.g. 'EEG & qEEG'",
+-      "method": "string — short line on what it measures",
+-      "appliesTo": "string — conditions it is studied in, or 'Transdiagnostic'",
+-      "maturity": "string — one of: Research only | Emerging | Clinical adjunct",
+-      "summary": "string — neutral explanation of the method",
+-      "promise": "string — what it could improve about identification",
+-      "caveat": "string — the key limitation / accuracy caveat",
+-      "downloadUrl": "string (optional) — path to a briefing in /downloads"
++      "type": "string — one of: Journal Article | Review | Meta-Analysis | Consensus Statement",
++      "authorOrInstitution": "string — the real authors, as published",
++      "publication": "string — journal, volume/issue and pages",
++      "publishDate": "string — 'YYYY' or 'YYYY-MM-DD'; use year-only when the month is not certain",
++      "sourceUrl": "string — canonical DOI link; must resolve",
++      "openAccessUrl": "string (optional) — free full text (repository, PMC, publisher OA)",
++      "abstract": "string (optional) — accurate summary shown in the 'Read Abstract' panel",
++      "featured": "boolean (optional) — surfaces the entry in 'Cutting-Edge Research'",
++      "downloadUrl": "string (optional) — ONLY for documents you have the right to host, e.g. /downloads/my-file.pdf"
+     }
+   },
+   "categories": [
+@@ -45,227 +26,144 @@
+   ],
+   "resources": [
+     {
+-      "id": "executive-function-scaffolding-toolkit",
+-      "title": "Executive Function Scaffolding: A Practitioner's Toolkit",
+-      "description": "Structured strategies for externalising working memory, initiation and time-perception — designed for ADHD brains rather than adapted for them.",
+-      "category": "ADHD & Executive Function",
+-      "type": "Toolkit",
+-      "authorOrInstitution": "Institute for Neuroaffirming Practice",
+-      "publishDate": "2025-09-18",
+-      "abstract": "This toolkit reframes executive dysfunction not as a deficit of effort but as a difference in the neural regulation of goal-directed behaviour. Drawing on Barkley's model of self-regulation and more recent interest-based nervous-system research, it offers concrete scaffolds — body-doubling, temporal anchoring, and 'externalised intention' cues — that reduce the working-memory load of everyday tasks.",
+-      "downloadUrl": "/downloads/executive-function-scaffolding-toolkit.pdf",
+-      "readingMinutes": 22
+-    },
+-    {
+-      "id": "adhd-time-blindness-worksheet",
+-      "title": "Time-Blindness & Task Estimation Worksheet",
+-      "description": "A printable, low-friction worksheet for building a personal reference library of how long tasks actually take versus how long they feel.",
+-      "category": "ADHD & Executive Function",
+-      "type": "Worksheet",
+-      "authorOrInstitution": "Dr. Priya Raghunathan, Clinical Psychologist",
+-      "publishDate": "2025-06-30",
+-      "downloadUrl": "/downloads/adhd-time-blindness-worksheet.pdf"
+-    },
+-    {
+-      "id": "audhd-support-needs-whitepaper",
+-      "title": "AuDHD: Living at the Intersection of Two Neurotypes",
+-      "description": "A whitepaper on the lived experience and support needs of people who are both Autistic and ADHD, where regulation strategies can directly conflict.",
+-      "category": "Autism & AuDHD",
+-      "type": "Whitepaper",
+-      "authorOrInstitution": "Neurodivergent Research Collective",
+-      "publishDate": "2025-10-11",
+-      "abstract": "The co-occurrence of Autism and ADHD (AuDHD) is now understood to be common rather than exceptional. This paper examines the internal tension of the profile — a nervous system that simultaneously seeks novelty and predictability — and argues for individualised, contradiction-tolerant support plans over one-size-fits-all protocols.",
+-      "downloadUrl": "/downloads/audhd-support-needs-whitepaper.pdf",
+-      "readingMinutes": 31
+-    },
+-    {
+-      "id": "monotropism-double-empathy-study",
+-      "title": "Monotropism and the Double Empathy Problem: A Bridging Framework",
+-      "description": "An emerging clinical synthesis linking monotropic attention styles to the mutual, bidirectional nature of cross-neurotype miscommunication.",
++      "id": "milton-2012-double-empathy",
++      "title": "On the ontological status of autism: the 'double empathy problem'",
++      "description": "The paper that introduced the double empathy problem: the argument that breakdowns between autistic and non-autistic people are mutual, not a one-sided deficit in autistic understanding.",
+       "category": "Monotropism & Double Empathy Problem",
+-      "type": "Clinical Study",
+-      "authorOrInstitution": "Milton & Fen-Hollande Research Group",
+-      "publishDate": "2026-01-22",
+-      "abstract": "The Double Empathy Problem reframes Autistic communication difficulty as a two-way breakdown between neurotypes rather than a one-sided deficit. This study pairs that lens with monotropism theory — the tendency toward deep, singular attention tunnels — to explain why shared context, not social 'skill', is the strongest predictor of successful cross-neurotype interaction.",
+-      "downloadUrl": "/downloads/monotropism-double-empathy-study.pdf",
+-      "featured": true,
+-      "readingMinutes": 27
+-    },
+-    {
+-      "id": "interoception-sensory-regulation-study",
+-      "title": "Interoception as the Missing Layer in Sensory Regulation",
+-      "description": "A transdiagnostic clinical study positioning interoceptive awareness — the sense of the body's internal state — as foundational to emotional and sensory regulation.",
+-      "category": "Sensory Processing & Interoception",
+-      "type": "Clinical Study",
+-      "authorOrInstitution": "Coastal Neurodevelopment Centre",
+-      "publishDate": "2025-12-05",
+-      "abstract": "Traditional sensory-processing models focus on the external eight senses while under-weighting interoception. This study presents evidence that interoceptive precision predicts self-regulation capacity across ADHD, Autistic and anxious presentations alike, making it a promising transdiagnostic target for neuro-affirming intervention.",
+-      "downloadUrl": "/downloads/interoception-sensory-regulation-study.pdf",
+-      "featured": true,
+-      "readingMinutes": 24
+-    },
+-    {
+-      "id": "sensory-diet-planning-worksheet",
+-      "title": "Sensory Diet Planning Worksheet",
+-      "description": "A calm, grid-based worksheet for mapping sensory inputs across a day and identifying where regulation support is most needed.",
+-      "category": "Sensory Processing & Interoception",
+-      "type": "Worksheet",
+-      "authorOrInstitution": "Occupational Therapy Neuroaffirming Network",
+-      "publishDate": "2025-07-14",
+-      "downloadUrl": "/downloads/sensory-diet-planning-worksheet.pdf"
+-    },
+-    {
+-      "id": "twice-exceptional-identification-whitepaper",
+-      "title": "Recognising the Twice-Exceptional (2e) Learner",
+-      "description": "Why high giftedness and a co-occurring disability so often mask one another — and a framework for identification that looks past averaged test scores.",
+-      "category": "High Giftedness & 2e (Twice Exceptional)",
+-      "type": "Whitepaper",
+-      "authorOrInstitution": "Centre for Gifted & Neurodivergent Learning",
+-      "publishDate": "2025-08-02",
+-      "abstract": "Twice-exceptional learners are gifted and also have one or more disabilities. Because strengths and challenges frequently cancel out on standardised measures, these learners are routinely under-identified. This whitepaper offers a strengths-first identification framework and argues for asynchronous, profile-based support.",
+-      "downloadUrl": "/downloads/twice-exceptional-identification-whitepaper.pdf"
+-    },
+-    {
+-      "id": "neuroaffirming-paradigm-shift-study",
+-      "title": "From Remediation to Affirmation: A Paradigm Shift in Practice",
+-      "description": "A landmark study charting the field's move away from deficit-based remediation toward neuro-affirming, identity-first models of support.",
+-      "category": "High Giftedness & 2e (Twice Exceptional)",
+-      "type": "Clinical Study",
+-      "authorOrInstitution": "Journal of Neuroaffirming Clinical Practice",
+-      "publishDate": "2026-02-01",
+-      "abstract": "This study documents outcome data from clinics that transitioned from deficit-remediation models to neuro-affirming, strengths-based practice. Across ADHD, Autistic and 2e cohorts, affirmation-first care correlated with lower reported burnout and higher self-advocacy — reframing 'treatment' as accommodation and identity support rather than normalisation.",
+-      "downloadUrl": "/downloads/neuroaffirming-paradigm-shift-study.pdf",
+-      "featured": true,
+-      "readingMinutes": 29
+-    },
+-    {
+-      "id": "body-doubling-task-initiation-whitepaper",
+-      "title": "Body Doubling: The Social Scaffold for Task Initiation",
+-      "description": "Why working alongside another person lowers the activation energy of hard-to-start tasks, and how to build body-doubling into a routine.",
+-      "category": "ADHD & Executive Function",
+-      "type": "Whitepaper",
+-      "authorOrInstitution": "Institute for Neuroaffirming Practice",
+-      "publishDate": "2025-11-27",
+-      "abstract": "Body doubling — completing a task in the presence, real or virtual, of another person — is one of the most widely reported yet under-studied ADHD strategies. This paper reviews the emerging evidence and proposes a mechanism rooted in externalised accountability and reduced initiation load rather than surveillance.",
+-      "downloadUrl": "/downloads/body-doubling-task-initiation-whitepaper.pdf",
+-      "readingMinutes": 18
+-    },
+-    {
+-      "id": "autistic-burnout-recovery-study",
+-      "title": "Autistic Burnout: Recognition and Recovery",
+-      "description": "A clinical study distinguishing autistic burnout from depression, and mapping the conditions — reduced masking, restored autonomy — under which people recover.",
+-      "category": "Autism & AuDHD",
+-      "type": "Clinical Study",
+-      "authorOrInstitution": "Neurodivergent Research Collective",
+-      "publishDate": "2026-01-09",
+-      "abstract": "Autistic burnout is a state of pervasive exhaustion, loss of skills and reduced tolerance to stimuli, frequently misdiagnosed as depression. This study characterises its distinct profile and finds that recovery is predicted by reductions in masking demands and increases in self-directed time rather than conventional antidepressant pathways.",
+-      "downloadUrl": "/downloads/autistic-burnout-recovery-study.pdf",
+-      "featured": true,
+-      "readingMinutes": 26
+-    },
+-    {
+-      "id": "monotropic-flow-environments-toolkit",
+-      "title": "Designing for Monotropic Flow",
+-      "description": "A toolkit for arranging environments, schedules and transitions to protect deep attention tunnels instead of interrupting them.",
++      "type": "Journal Article",
++      "authorOrInstitution": "Damian E. M. Milton",
++      "publication": "Disability & Society, 27(6), 883–887",
++      "publishDate": "2012",
++      "abstract": "Milton challenges the framing of autism through cognitive-deficit models, arguing that when people of very different experience interact, the failure of mutual understanding is shared. Non-autistic people are no better at reading autistic minds than the reverse — so the 'empathy problem' is double, and located between people rather than inside one of them.",
++      "sourceUrl": "https://doi.org/10.1080/09687599.2012.710008",
++      "openAccessUrl": "https://kar.kent.ac.uk/62639/",
++      "featured": true
++    },
++    {
++      "id": "crompton-2020-peer-to-peer",
++      "title": "Autistic peer-to-peer information transfer is highly effective",
++      "description": "Empirical support for the double empathy problem: information passed along chains of autistic people was retained as well as in non-autistic chains, while mixed chains lost significantly more detail.",
+       "category": "Monotropism & Double Empathy Problem",
+-      "type": "Toolkit",
+-      "authorOrInstitution": "Occupational Therapy Neuroaffirming Network",
+-      "publishDate": "2025-10-30",
+-      "downloadUrl": "/downloads/monotropic-flow-environments-toolkit.pdf",
+-      "readingMinutes": 15
++      "type": "Journal Article",
++      "authorOrInstitution": "Catherine J. Crompton, Danielle Ropar, Claire V. M. Evans-Williams, Emma G. Flynn & Sue Fletcher-Watson",
++      "publication": "Autism, 24(7), 1704–1712",
++      "publishDate": "2020-10-01",
++      "abstract": "Using diffusion chains of eight participants (n = 72), a story was passed from person to person in all-autistic, all-non-autistic and mixed chains. Detail retention declined significantly more steeply in the mixed chains, while autistic chains did not differ significantly from non-autistic ones — evidence that autistic people transfer information effectively to each other, and that difficulty arises across neurotypes rather than within autism.",
++      "sourceUrl": "https://doi.org/10.1177/1362361320919286",
++      "openAccessUrl": "https://journals.sagepub.com/doi/10.1177/1362361320919286",
++      "featured": true
++    },
++    {
++      "id": "murray-2005-monotropism",
++      "title": "Attention, monotropism and the diagnostic criteria for autism",
++      "description": "The foundational monotropism paper, arguing that atypical allocation of attention — deep interest in fewer things at once — is central to the autistic experience.",
++      "category": "Monotropism & Double Empathy Problem",
++      "type": "Journal Article",
++      "authorOrInstitution": "Dinah Murray, Mike Lesser & Wenn Lawson",
++      "publication": "Autism, 9(2), 139–156",
++      "publishDate": "2005-05-01",
++      "abstract": "Drawing on a range of literature, the authors argue that atypical strategies for allocating attention are central to autism. The account is examined against the DSM-IV and ICD-10 diagnostic criteria and against the personal experience of autistic people, including one of the authors.",
++      "sourceUrl": "https://doi.org/10.1177/1362361305051398",
++      "openAccessUrl": "https://monotropism.org/murray-lesser-lawson/"
++    },
++    {
++      "id": "raymaker-2020-autistic-burnout",
++      "title": "\"Having All of Your Internal Resources Exhausted Beyond Measure and Being Left with No Clean-Up Crew\": Defining Autistic Burnout",
++      "description": "The first community-based study to define autistic burnout, characterising it as chronic exhaustion, loss of skills and reduced tolerance to stimuli — distinct from depression.",
++      "category": "Autism & AuDHD",
++      "type": "Journal Article",
++      "authorOrInstitution": "Dora M. Raymaker, Alan R. Teo, Nicole A. Steckler, Brandy Lentz, Mirah Scharer, Austin Delos Santos, Steven K. Kapp, Morrigan Hunter, Andee Joyce & Christina Nicolaidis",
++      "publication": "Autism in Adulthood, 2(2), 132–143",
++      "publishDate": "2020-06-01",
++      "abstract": "Using a community-based participatory research approach, the authors thematically analysed 19 interviews and 19 public internet sources to characterise autistic burnout as chronic exhaustion, loss of skills and reduced tolerance to stimulus, arising from life stressors and barriers to support. Participants distinguished it from depression and from occupational burnout.",
++      "sourceUrl": "https://doi.org/10.1089/aut.2019.0079",
++      "openAccessUrl": "https://www.liebertpub.com/doi/full/10.1089/aut.2019.0079",
++      "featured": true
++    },
++    {
++      "id": "newson-2003-pda",
++      "title": "Pathological demand avoidance syndrome: a necessary distinction within the pervasive developmental disorders",
++      "description": "The original clinical account of demand avoidance as a distinct profile, and the starting point for the ongoing debate about how PDA should be understood and supported.",
++      "category": "Autism & AuDHD",
++      "type": "Journal Article",
++      "authorOrInstitution": "Elizabeth Newson, Kimberley Le Maréchal & Clare David",
++      "publication": "Archives of Disease in Childhood, 88(7), 595–600",
++      "publishDate": "2003-07-01",
++      "abstract": "Newson and colleagues describe a group of children whose central feature is extreme avoidance of everyday demands, alongside surface sociability and a need for control, and argue that this profile is clinically distinct within the pervasive developmental disorders. The classification remains contested; later work reframes the avoidance as an anxiety and autonomy response rather than deliberate non-compliance.",
++      "sourceUrl": "https://doi.org/10.1136/adc.88.7.595"
+     },
+     {
+-      "id": "interoception-building-worksheet",
+-      "title": "Interoception-Building Activities Worksheet",
+-      "description": "Gentle, repeatable activities for noticing internal signals — hunger, thirst, temperature, tension — to strengthen the interoceptive sense over time.",
++      "id": "faraone-2021-adhd-consensus",
++      "title": "The World Federation of ADHD International Consensus Statement: 208 evidence-based conclusions about the disorder",
++      "description": "A large international consensus statement gathering only well-replicated findings about ADHD, written explicitly to counter misinformation and stigma.",
++      "category": "ADHD & Executive Function",
++      "type": "Consensus Statement",
++      "authorOrInstitution": "Stephen V. Faraone et al., World Federation of ADHD",
++      "publication": "Neuroscience & Biobehavioral Reviews, 128, 789–818",
++      "publishDate": "2021-09-01",
++      "abstract": "To counter misconceptions that stigmatise people with ADHD, the authors curated 208 conclusions supported by strong evidence — restricting inclusion to studies of more than 2,000 participants or meta-analyses of five or more studies. The result is a reference on the nature, course, outcomes, causes and treatment of ADHD.",
++      "sourceUrl": "https://doi.org/10.1016/j.neubiorev.2021.01.022",
++      "openAccessUrl": "https://www.sciencedirect.com/science/article/pii/S014976342100049X",
++      "featured": true
++    },
++    {
++      "id": "quadt-2018-interoception",
++      "title": "The neurobiology of interoception in health and disease",
++      "description": "A review of interoception — the sensing of the body's internal state — and how differences in it relate to autism, anxiety, depression and eating disorders.",
+       "category": "Sensory Processing & Interoception",
+-      "type": "Worksheet",
+-      "authorOrInstitution": "Coastal Neurodevelopment Centre",
+-      "publishDate": "2025-09-05",
+-      "downloadUrl": "/downloads/interoception-building-worksheet.pdf"
++      "type": "Review",
++      "authorOrInstitution": "Lisa Quadt, Hugo D. Critchley & Sarah N. Garfinkel",
++      "publication": "Annals of the New York Academy of Sciences, 1428, 112–128",
++      "publishDate": "2018",
++      "abstract": "The authors give a neurobiological overview of interoception and set out how interoceptive differences relate to specific physical and mental health conditions, including sickness behaviour and fatigue, depression, eating disorders, autism and anxiety — supporting interest in interoception as a transdiagnostic target.",
++      "sourceUrl": "https://doi.org/10.1111/nyas.13915"
+     },
+     {
+-      "id": "asynchronous-development-2e-whitepaper",
+-      "title": "Asynchronous Development in Gifted & 2e Learners",
+-      "description": "Why a gifted child can reason like an adult and regulate like a much younger one at the same time — and how support should follow the profile, not the age.",
++      "id": "reis-2014-twice-exceptional",
++      "title": "An operational definition of twice-exceptional learners: implications and applications",
++      "description": "The widely-cited operational definition of 2e learners, explaining how giftedness and disability mask one another and why these students are routinely under-identified.",
+       "category": "High Giftedness & 2e (Twice Exceptional)",
+-      "type": "Whitepaper",
+-      "authorOrInstitution": "Centre for Gifted & Neurodivergent Learning",
+-      "publishDate": "2025-12-18",
+-      "abstract": "Asynchronous development — uneven progress across intellectual, emotional and motor domains — is a defining feature of high giftedness and is amplified in 2e profiles. This paper argues for support that responds to each domain's actual level rather than to chronological age or averaged scores.",
+-      "downloadUrl": "/downloads/asynchronous-development-2e-whitepaper.pdf",
+-      "readingMinutes": 20
+-    },
+-    {
+-      "id": "pda-nervous-system-study",
+-      "title": "Demand Avoidance (PDA): A Nervous-System Framing",
+-      "description": "A clinical study reframing pathological/persistent demand avoidance as an autonomic threat response to loss of autonomy rather than defiance.",
+-      "category": "Autism & AuDHD",
+-      "type": "Clinical Study",
+-      "authorOrInstitution": "Milton & Fen-Hollande Research Group",
+-      "publishDate": "2026-02-14",
+-      "abstract": "This study reframes demand avoidance through the lens of nervous-system threat detection: perceived loss of autonomy triggers an autonomic response that makes even desired tasks feel impossible. Collaborative, low-demand and autonomy-preserving approaches outperform compliance-based strategies across the cohort.",
+-      "downloadUrl": "/downloads/pda-nervous-system-study.pdf",
+-      "featured": true,
+-      "readingMinutes": 23
++      "type": "Journal Article",
++      "authorOrInstitution": "Sally M. Reis, Susan M. Baum & Edith Burke",
++      "publication": "Gifted Child Quarterly, 58(3), 217–230",
++      "publishDate": "2014-07-01",
++      "abstract": "The authors provide a research-based rationale for an operational definition of twice-exceptionality, profile 2e youth, and summarise programmes and practices that let these students develop their strengths while their disabilities are simultaneously accommodated.",
++      "sourceUrl": "https://doi.org/10.1177/0016986214534976"
+     }
+   ],
+   "supplements": [
+     {
+       "id": "omega-3",
+       "name": "Omega-3 (EPA/DHA)",
+-      "supports": "Attention, emotional regulation & mood",
++      "supports": "ADHD symptoms",
+       "relatedArea": "ADHD & Executive Function",
+-      "evidenceLevel": "Well-studied",
+-      "summary": "Long-chain omega-3 fatty acids, particularly EPA, have the strongest research base of any supplement studied in ADHD. Effects are modest but reasonably consistent, and are most noticeable in people with lower baseline dietary intake of oily fish.",
+-      "considerations": "Higher-EPA formulations are the ones usually studied, and it can take 8–12 weeks to notice any change. May interact with blood-thinning medication — worth discussing with a clinician first.",
+-      "downloadUrl": "/downloads/omega-3-guide.pdf"
+-    },
+-    {
+-      "id": "magnesium",
+-      "name": "Magnesium (glycinate)",
+-      "supports": "Sleep, relaxation & sensory settling",
+-      "relatedArea": "Sensory Processing & Interoception",
+       "evidenceLevel": "Moderate evidence",
+-      "summary": "Magnesium is involved in nervous-system regulation and is commonly under-consumed in the general population. Glycinate and threonate forms are gentler on digestion than oxide, and it is often explored for sleep onset and physical restlessness.",
+-      "considerations": "Generally well-tolerated; too much can cause digestive upset. It interacts with some medications, so mention it to a clinician — especially if you have kidney concerns.",
+-      "downloadUrl": "/downloads/magnesium-guide.pdf"
++      "summary": "A meta-analysis of randomised trials in children found omega-3 supplementation produced a small but statistically significant improvement in ADHD symptoms, with efficacy correlated to the EPA dose in the supplement. The effect is modest and considerably smaller than that of established treatments.",
++      "considerations": "Not a replacement for standard treatment. Effects build over weeks, and omega-3 can interact with blood-thinning medication — discuss with a clinician first.",
++      "evidenceCitation": "Bloch & Qawasmi (2011), Journal of the American Academy of Child & Adolescent Psychiatry, 50(10), 991–1000",
++      "evidenceUrl": "https://doi.org/10.1016/j.jaac.2011.06.008"
+     },
+     {
+       "id": "iron-ferritin",
+       "name": "Iron & Ferritin",
+-      "supports": "Focus, restlessness & dopamine synthesis",
++      "supports": "Correcting a confirmed deficiency",
+       "relatedArea": "ADHD & Executive Function",
+       "evidenceLevel": "Moderate evidence",
+-      "summary": "Low ferritin (the body's iron stores) is more common in ADHD and is linked to restlessness and poorer attention, likely via dopamine pathways. Correcting a genuine deficiency can help; supplementing without one does not.",
+-      "considerations": "Test ferritin first — iron is harmful in excess and should never be supplemented blind, especially in children. This one is always clinician-guided."
++      "summary": "A systematic review and meta-analysis found serum ferritin levels are lower on average in people with ADHD. This is an association from observational data — it does not show that supplementing iron improves symptoms in people whose levels are already normal.",
++      "considerations": "Test ferritin first. Iron is harmful in excess and must never be supplemented blind, especially in children — this one is always clinician-guided.",
++      "evidenceCitation": "Wang, Huang, Zhang, Qu & Mu (2017), PLOS ONE, 12(1), e0169145",
++      "evidenceUrl": "https://doi.org/10.1371/journal.pone.0169145"
+     },
+     {
+       "id": "zinc",
+       "name": "Zinc",
+-      "supports": "Neurotransmitter regulation",
++      "supports": "ADHD total symptom scores",
+       "relatedArea": "ADHD & Executive Function",
+       "evidenceLevel": "Emerging",
+-      "summary": "Zinc plays a role in dopamine metabolism, and some studies find lower zinc levels in ADHD populations. Evidence for supplementation is mixed and strongest where an actual deficiency exists.",
+-      "considerations": "Best guided by testing. Sustained high doses interfere with copper absorption over time, so keep a clinician in the loop."
+-    },
+-    {
+-      "id": "vitamin-d",
+-      "name": "Vitamin D",
+-      "supports": "Mood & overall neurodevelopmental health",
+-      "relatedArea": "General regulation",
+-      "evidenceLevel": "Moderate evidence",
+-      "summary": "Vitamin D deficiency is widespread, particularly in less sunny climates, and is associated with mood and cognitive effects. Correcting a confirmed deficiency supports general wellbeing rather than targeting neurodivergence directly.",
+-      "considerations": "A simple blood test shows whether you're low. It's fat-soluble, so excess accumulates — stick to tested, clinician-advised amounts."
+-    },
+-    {
+-      "id": "l-theanine",
+-      "name": "L-theanine",
+-      "supports": "Calm alertness & winding down",
+-      "relatedArea": "Autism & AuDHD",
+-      "evidenceLevel": "Emerging",
+-      "summary": "An amino acid found in tea, L-theanine is associated with a state of relaxed alertness and is sometimes explored alongside caffeine or for evening settling. Research specifically in neurodivergent populations is still early.",
+-      "considerations": "Generally well-tolerated. As with any supplement, talk through timing and interactions with a clinician before starting."
++      "summary": "A dose-response meta-analysis of six randomised trials in school-aged children found an effect of zinc supplementation on total ADHD scores, but not on hyperactivity or inattention subscales considered separately. The authors rated the certainty of the evidence as moderate to very low.",
++      "considerations": "Weak and inconsistent evidence. Sustained high doses interfere with copper absorption, so this is worth testing for and discussing with a clinician rather than self-prescribing.",
++      "evidenceCitation": "Systematic review & dose-response meta-analysis (2022), Critical Reviews in Food Science and Nutrition, 62(32)",
++      "evidenceUrl": "https://doi.org/10.1080/10408398.2021.1940833"
+     }
+   ],
+   "diagnostics": [
+@@ -274,64 +172,48 @@
+       "modality": "EEG & qEEG",
+       "method": "Measures the brain's electrical rhythms",
+       "appliesTo": "ADHD",
+-      "maturity": "Clinical adjunct",
+-      "summary": "Electroencephalography records electrical activity through scalp sensors. Quantitative EEG (qEEG) analyses patterns such as the theta/beta ratio, which differs on average in ADHD. It is inexpensive, non-invasive and quick.",
+-      "promise": "An objective, low-cost signal that can support an ADHD assessment and help track response to support over time.",
+-      "caveat": "Average group differences do not reliably identify individuals — EEG supports a full clinical assessment, it never replaces one.",
+-      "downloadUrl": "/downloads/eeg-qeeg-briefing.pdf"
+-    },
+-    {
+-      "id": "mri-fmri",
+-      "modality": "Structural & Functional MRI",
+-      "method": "Maps brain anatomy, activity & connectivity",
+-      "appliesTo": "Autism · ADHD",
+       "maturity": "Research only",
+-      "summary": "Structural MRI maps anatomy while functional MRI (fMRI) measures blood-flow changes linked to neural activity. Studies consistently find differences in network organisation and connectivity across neurotypes.",
+-      "promise": "A rich window into brain networks that may eventually inform subtyping and more personalised support.",
+-      "caveat": "Individual measurements overlap heavily between groups; no MRI can currently diagnose a neurodevelopmental condition. Research use only.",
+-      "downloadUrl": "/downloads/mri-fmri-briefing.pdf"
++      "summary": "Quantitative EEG analyses patterns such as the theta/beta ratio (TBR), long proposed as an objective marker for ADHD. A meta-analysis of nine studies covering 1,253 children and adolescents with ADHD found the effect size has declined substantially over time.",
++      "promise": "Inexpensive, non-invasive and quick to administer compared with imaging.",
++      "caveat": "The meta-analysis concluded TBR is not a reliable diagnostic measure: heterogeneity was significant and pooled effect sizes were judged an overestimate. It cannot identify individuals.",
++      "evidenceCitation": "Arns, Conners & Kraemer (2013), Journal of Attention Disorders, 17(5), 374–383",
++      "evidenceUrl": "https://doi.org/10.1177/1087054712460087"
+     },
+     {
+       "id": "eye-tracking",
+       "modality": "Eye-Tracking",
+-      "method": "Captures gaze patterns & visual attention",
++      "method": "Captures gaze patterns and visual attention",
+       "appliesTo": "Autism",
+       "maturity": "Emerging",
+-      "summary": "Eye-tracking records where and for how long a person looks, capturing differences in social attention and visual exploration that can appear very early in development — sometimes in infancy.",
+-      "promise": "A promising route to earlier, more objective identification of autistic traits, including before speech develops.",
+-      "caveat": "Gaze patterns vary widely and overlap with interest and attention style — a screening aid, not a diagnosis.",
+-      "downloadUrl": "/downloads/eye-tracking-briefing.pdf"
++      "summary": "A longitudinal infant study found that attention to others' eyes was present at birth in children later diagnosed as autistic, but declined from around two months of age — a difference measurable long before behavioural diagnosis is possible.",
++      "promise": "Points toward far earlier identification, potentially before speech develops.",
++      "caveat": "A group-level developmental finding from a research cohort, not a validated diagnostic test; gaze varies widely between individuals.",
++      "evidenceCitation": "Jones & Klin (2013), Nature, 504(7480), 427–431",
++      "evidenceUrl": "https://doi.org/10.1038/nature12715"
+     },
+     {
+-      "id": "genetic-polygenic",
+-      "modality": "Genetic & Polygenic Scores",
+-      "method": "Aggregates many small inherited signals",
+-      "appliesTo": "ADHD · Autism",
++      "id": "mri-fmri",
++      "modality": "Structural & Functional MRI",
++      "method": "Maps brain anatomy, activity and connectivity",
++      "appliesTo": "Autism",
+       "maturity": "Research only",
+-      "summary": "Neurodevelopmental conditions are highly heritable and polygenic — shaped by many common variants of small effect. Polygenic scores summarise this genetic loading across the whole genome.",
+-      "promise": "May help explain shared, transdiagnostic risk and why traits cluster within families.",
+-      "caveat": "Scores are probabilistic and population-dependent; they cannot diagnose an individual and raise real ethical questions."
++      "summary": "A review of neuroimaging across the lifespan describes differences in brain structure, function and connectivity associated with autism, while setting out why these have not translated into a clinical test.",
++      "promise": "A window into brain development that may eventually inform subtyping and more personalised support.",
++      "caveat": "Findings are group averages with heavy overlap between individuals; no MRI measure can currently diagnose a neurodevelopmental condition.",
++      "evidenceCitation": "Ecker, Bookheimer & Murphy (2015), The Lancet Neurology, 14(11), 1121–1134",
++      "evidenceUrl": "https://doi.org/10.1016/S1474-4422(15)00050-2"
+     },
+     {
+-      "id": "continuous-performance-test",
+-      "modality": "Continuous Performance Tests (CPT)",
+-      "method": "Objectively measures sustained attention",
++      "id": "genetic-polygenic",
++      "modality": "Genetic & Polygenic Scores",
++      "method": "Aggregates many small inherited signals",
+       "appliesTo": "ADHD",
+-      "maturity": "Clinical adjunct",
+-      "summary": "Computerised CPTs measure sustained attention, impulsivity and reaction-time variability during a repetitive task — sometimes combined with motion tracking to capture restlessness.",
+-      "promise": "Adds an objective behavioural data point to an assessment and can help gauge response to medication.",
+-      "caveat": "Sensitivity and specificity are modest; a normal result does not rule ADHD out. Interpreted alongside history, never alone.",
+-      "downloadUrl": "/downloads/continuous-performance-test-briefing.pdf"
+-    },
+-    {
+-      "id": "digital-phenotyping-ml",
+-      "modality": "Digital Phenotyping & Machine Learning",
+-      "method": "Learns patterns from everyday digital signals",
+-      "appliesTo": "Transdiagnostic",
+-      "maturity": "Emerging",
+-      "summary": "Machine-learning models combine signals — from wearables, voice, movement, gameplay or the methods above — to detect patterns associated with neurodivergence, an approach known as digital phenotyping.",
+-      "promise": "Could enable earlier, more accessible and even continuous identification outside the clinic.",
+-      "caveat": "Models risk bias, over-fitting and opacity; they need validation across diverse groups before clinical trust is warranted."
++      "maturity": "Research only",
++      "summary": "The first genome-wide association meta-analysis to reach significance for ADHD — 20,183 diagnosed individuals and 35,191 controls — identified variants at 12 independent loci, confirming a highly polygenic architecture of many common variants of small effect.",
++      "promise": "Clarifies the biology of ADHD and the genetic overlap it shares with other conditions.",
++      "caveat": "Individually these variants explain very little; polygenic scores are probabilistic, population-dependent and cannot diagnose a person.",
++      "evidenceCitation": "Demontis et al. (2019), Nature Genetics, 51(1), 63–75",
++      "evidenceUrl": "https://doi.org/10.1038/s41588-018-0269-7"
+     }
+   ]
+ }
+diff --git a/src/lib/resources-data.js b/src/lib/resources-data.js
+index 8e06851..f67de06 100644
+--- a/src/lib/resources-data.js
++++ b/src/lib/resources-data.js
+@@ -12,17 +12,10 @@ export const supplements = data.supplements || [];
+ export const diagnostics = data.diagnostics || [];
+ 
+ export const RESOURCE_TYPES = [
+-  "Whitepaper",
+-  "Clinical Study",
+-  "Worksheet",
+-  "Toolkit",
+-];
+-
+-// Format an ISO date (YYYY-MM-DD) as e.g. "September 2025" without pulling in
+-// a date library or tripping on timezone offsets from `new Date("YYYY-MM-DD")`.
+-const MONTHS = [
+-  "January", "February", "March", "April", "May", "June",
+-  "July", "August", "September", "October", "November", "December",
++  "Journal Article",
++  "Review",
++  "Meta-Analysis",
++  "Consensus Statement",
+ ];
+ 
+ // Resolve a `/downloads/...` path against the deployed base path. Locally the
+@@ -34,9 +27,18 @@ export function assetUrl(path) {
+   return `${base.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
+ }
+ 
++// Format a publication date for display. Accepts a full ISO date
++// ("2020-06-01" → "June 2020") or a bare year ("2012" → "2012"), because the
++// exact month is not always known for older papers.
++const MONTHS = [
++  "January", "February", "March", "April", "May", "June",
++  "July", "August", "September", "October", "November", "December",
++];
++
+ export function formatPublishDate(iso) {
+   if (typeof iso !== "string") return "";
+   const [year, month] = iso.split("-");
++  if (!month) return year;
+   const idx = Number(month) - 1;
+   if (!year || Number.isNaN(idx) || idx < 0 || idx > 11) return iso;
+   return `${MONTHS[idx]} ${year}`;
+diff --git a/src/pages/Resources.jsx b/src/pages/Resources.jsx
+index e4297f5..7038de3 100644
+--- a/src/pages/Resources.jsx
++++ b/src/pages/Resources.jsx
+@@ -6,7 +6,6 @@ import {
+   featuredResources,
+   supplements,
+   diagnostics,
+-  formatPublishDate,
+ } from "@/lib/resources-data";
+ import ResourceCard from "@/components/resources/ResourceCard";
+ import ResearchCard from "@/components/resources/ResearchCard";
+@@ -81,9 +80,10 @@ export default function Resources() {
+               Clear, credible research &amp; resources on neurodivergence.
+             </h1>
+             <p className="mt-5 max-w-2xl text-base leading-relaxed text-[hsl(var(--rx-ink-soft))] sm:text-lg">
+-              A calm, uncluttered collection of whitepapers, clinical studies,
+-              worksheets and toolkits — curated to be neuro-affirming, evidence-led
+-              and easy to read. Filter by area, or read the emerging research below.
++              A calm, uncluttered collection of peer-reviewed research on
++              neurodivergence — summarised in plain language and linked to the
++              original source, so you can always check it yourself. Free full text is
++              flagged wherever it exists.
+             </p>
+             <p className="mt-6 text-sm text-[hsl(var(--rx-ink-faint))]">
+               {counts.all} resources · {categories.length} focus areas
+@@ -112,8 +112,8 @@ export default function Resources() {
+             </div>
+ 
+             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[hsl(var(--rx-ink-soft))]">
+-              Transdiagnostic approaches and clinical work at the frontier of how we
+-              understand neurodivergent minds.
++              The work that most changed how neurodivergence is understood — from the
++              double empathy problem to community-defined autistic burnout.
+             </p>
+ 
+             <div className="mt-8 grid gap-5">
+@@ -298,8 +298,10 @@ export default function Resources() {
+             This library is for information and education. It is not a substitute
+             for individualised clinical, medical or therapeutic advice.
+           </p>
+-          <p className="mt-2">
+-            Last updated {formatPublishDate("2026-02-01")}.
++          <p className="mt-2 max-w-2xl leading-relaxed">
++            Every entry links to its original published source. Summaries are written
++            for this site and are not the authors&rsquo; own words — follow the link
++            before citing anything.
+           </p>
+         </div>
+       </footer>
+-- 
+2.43.0
+
