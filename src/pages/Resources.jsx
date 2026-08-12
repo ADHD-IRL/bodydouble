@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { Library, Sparkles, ArrowLeft, Leaf, SearchX, Pill, Info, ScanLine } from "lucide-react";
+import { Library, Sparkles, Leaf, SearchX, Pill, Info, ScanLine } from "lucide-react";
 import {
   resources,
   categories,
@@ -65,13 +64,9 @@ export default function Resources() {
             className="flex items-center justify-between gap-4 border-b py-3 text-sm"
             style={{ borderColor: "hsl(var(--rx-line))" }}
           >
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1.5 text-[hsl(var(--rx-ink-soft))] transition-colors hover:text-[hsl(var(--rx-forest))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))] rounded"
-            >
-              <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-              Back to app
-            </Link>
+            <span className="text-xs font-medium uppercase tracking-[0.12em] text-[hsl(var(--rx-ink-faint))]">
+              Open resource library
+            </span>
 
             <ReadingModeToggle sensory={sensory} onToggle={toggleSensory} />
           </div>

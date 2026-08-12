@@ -1,6 +1,6 @@
 import { Download, Clock, Building2, Calendar, Sparkles } from "lucide-react";
 import TypeBadge from "./TypeBadge";
-import { formatPublishDate } from "@/lib/resources-data";
+import { formatPublishDate, assetUrl } from "@/lib/resources-data";
 
 // Distinct, editorial layout for the "Cutting-Edge Research" section:
 // a wider two-column card with a deep-forest accent rail and the abstract
@@ -63,7 +63,7 @@ export default function ResearchCard({ resource }) {
       {/* Action column */}
       <div className="flex items-end sm:flex-col sm:items-stretch sm:justify-center">
         <a
-          href={resource.downloadUrl}
+          href={assetUrl(resource.downloadUrl)}
           download
           className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-[hsl(var(--rx-surface))] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           style={{

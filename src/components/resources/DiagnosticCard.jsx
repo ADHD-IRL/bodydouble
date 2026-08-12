@@ -9,6 +9,7 @@ import {
   Info,
   Download,
 } from "lucide-react";
+import { assetUrl } from "@/lib/resources-data";
 
 // Modality → icon.
 const MODALITY_ICON = {
@@ -132,7 +133,7 @@ export default function DiagnosticCard({ diagnostic }) {
       {diagnostic.downloadUrl && (
         <div className="mt-auto pt-4">
           <a
-            href={diagnostic.downloadUrl}
+            href={assetUrl(diagnostic.downloadUrl)}
             download
             className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
             style={{ borderColor: "hsl(var(--rx-cyan) / 0.4)" }}

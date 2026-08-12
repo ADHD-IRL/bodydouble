@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 import { Download, BookOpen, ChevronDown, Calendar, Building2 } from "lucide-react";
 import TypeBadge from "./TypeBadge";
-import { formatPublishDate } from "@/lib/resources-data";
+import { formatPublishDate, assetUrl } from "@/lib/resources-data";
 
 export default function ResourceCard({ resource }) {
   const [open, setOpen] = useState(false);
@@ -54,7 +54,7 @@ export default function ResourceCard({ resource }) {
       {/* Actions */}
       <div className="mt-5 flex flex-wrap items-center gap-2 border-t pt-4" style={{ borderColor: "hsl(var(--rx-line))" }}>
         <a
-          href={resource.downloadUrl}
+          href={assetUrl(resource.downloadUrl)}
           download
           className="inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-surface))] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
           style={{ backgroundColor: "hsl(var(--rx-forest))", "--tw-ring-color": "hsl(var(--rx-cyan))", "--tw-ring-offset-color": "hsl(var(--rx-surface))" }}
