@@ -23,6 +23,17 @@
       "summary": "string — neutral, evidence-led paragraph",
       "considerations": "string — practical, safety-first notes (testing, interactions)",
       "downloadUrl": "string (optional) — path to a guide in /downloads"
+    },
+    "diagnosticFields": {
+      "id": "string — unique, stable, kebab-case slug",
+      "modality": "string — method name, e.g. 'EEG & qEEG'",
+      "method": "string — short line on what it measures",
+      "appliesTo": "string — conditions it is studied in, or 'Transdiagnostic'",
+      "maturity": "string — one of: Research only | Emerging | Clinical adjunct",
+      "summary": "string — neutral explanation of the method",
+      "promise": "string — what it could improve about identification",
+      "caveat": "string — the key limitation / accuracy caveat",
+      "downloadUrl": "string (optional) — path to a briefing in /downloads"
     }
   },
   "categories": [
@@ -255,6 +266,72 @@
       "evidenceLevel": "Emerging",
       "summary": "An amino acid found in tea, L-theanine is associated with a state of relaxed alertness and is sometimes explored alongside caffeine or for evening settling. Research specifically in neurodivergent populations is still early.",
       "considerations": "Generally well-tolerated. As with any supplement, talk through timing and interactions with a clinician before starting."
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "eeg-qeeg",
+      "modality": "EEG & qEEG",
+      "method": "Measures the brain's electrical rhythms",
+      "appliesTo": "ADHD",
+      "maturity": "Clinical adjunct",
+      "summary": "Electroencephalography records electrical activity through scalp sensors. Quantitative EEG (qEEG) analyses patterns such as the theta/beta ratio, which differs on average in ADHD. It is inexpensive, non-invasive and quick.",
+      "promise": "An objective, low-cost signal that can support an ADHD assessment and help track response to support over time.",
+      "caveat": "Average group differences do not reliably identify individuals — EEG supports a full clinical assessment, it never replaces one.",
+      "downloadUrl": "/downloads/eeg-qeeg-briefing.pdf"
+    },
+    {
+      "id": "mri-fmri",
+      "modality": "Structural & Functional MRI",
+      "method": "Maps brain anatomy, activity & connectivity",
+      "appliesTo": "Autism · ADHD",
+      "maturity": "Research only",
+      "summary": "Structural MRI maps anatomy while functional MRI (fMRI) measures blood-flow changes linked to neural activity. Studies consistently find differences in network organisation and connectivity across neurotypes.",
+      "promise": "A rich window into brain networks that may eventually inform subtyping and more personalised support.",
+      "caveat": "Individual measurements overlap heavily between groups; no MRI can currently diagnose a neurodevelopmental condition. Research use only.",
+      "downloadUrl": "/downloads/mri-fmri-briefing.pdf"
+    },
+    {
+      "id": "eye-tracking",
+      "modality": "Eye-Tracking",
+      "method": "Captures gaze patterns & visual attention",
+      "appliesTo": "Autism",
+      "maturity": "Emerging",
+      "summary": "Eye-tracking records where and for how long a person looks, capturing differences in social attention and visual exploration that can appear very early in development — sometimes in infancy.",
+      "promise": "A promising route to earlier, more objective identification of autistic traits, including before speech develops.",
+      "caveat": "Gaze patterns vary widely and overlap with interest and attention style — a screening aid, not a diagnosis.",
+      "downloadUrl": "/downloads/eye-tracking-briefing.pdf"
+    },
+    {
+      "id": "genetic-polygenic",
+      "modality": "Genetic & Polygenic Scores",
+      "method": "Aggregates many small inherited signals",
+      "appliesTo": "ADHD · Autism",
+      "maturity": "Research only",
+      "summary": "Neurodevelopmental conditions are highly heritable and polygenic — shaped by many common variants of small effect. Polygenic scores summarise this genetic loading across the whole genome.",
+      "promise": "May help explain shared, transdiagnostic risk and why traits cluster within families.",
+      "caveat": "Scores are probabilistic and population-dependent; they cannot diagnose an individual and raise real ethical questions."
+    },
+    {
+      "id": "continuous-performance-test",
+      "modality": "Continuous Performance Tests (CPT)",
+      "method": "Objectively measures sustained attention",
+      "appliesTo": "ADHD",
+      "maturity": "Clinical adjunct",
+      "summary": "Computerised CPTs measure sustained attention, impulsivity and reaction-time variability during a repetitive task — sometimes combined with motion tracking to capture restlessness.",
+      "promise": "Adds an objective behavioural data point to an assessment and can help gauge response to medication.",
+      "caveat": "Sensitivity and specificity are modest; a normal result does not rule ADHD out. Interpreted alongside history, never alone.",
+      "downloadUrl": "/downloads/continuous-performance-test-briefing.pdf"
+    },
+    {
+      "id": "digital-phenotyping-ml",
+      "modality": "Digital Phenotyping & Machine Learning",
+      "method": "Learns patterns from everyday digital signals",
+      "appliesTo": "Transdiagnostic",
+      "maturity": "Emerging",
+      "summary": "Machine-learning models combine signals — from wearables, voice, movement, gameplay or the methods above — to detect patterns associated with neurodivergence, an approach known as digital phenotyping.",
+      "promise": "Could enable earlier, more accessible and even continuous identification outside the clinic.",
+      "caveat": "Models risk bias, over-fitting and opacity; they need validation across diverse groups before clinical trust is warranted."
     }
   ]
 }

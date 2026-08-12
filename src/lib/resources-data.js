@@ -9,6 +9,8 @@ export const featuredResources = resources.filter((r) => r.featured);
 
 export const supplements = data.supplements || [];
 
+export const diagnostics = data.diagnostics || [];
+
 export const RESOURCE_TYPES = [
   "Whitepaper",
   "Clinical Study",
