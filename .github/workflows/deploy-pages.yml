@@ -44,7 +44,6 @@ jobs:
 
       - name: Build static site
         env:
-          VITE_STANDALONE: 'true'
           # Serve from the repository sub-path, e.g. /bodydouble/
           PAGES_BASE: /${{ github.event.repository.name }}/
         run: npm run build:pages
@@ -55,7 +54,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist-pages
+          path: dist
 
   deploy:
     needs: build

@@ -29,6 +29,3 @@ dist-ssr
 
 .env
 .vite
-
-# GitHub Pages build output
-dist-pages
