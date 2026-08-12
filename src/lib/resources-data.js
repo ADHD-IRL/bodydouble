@@ -25,6 +25,16 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
+// Resolve a `/downloads/...` path against the deployed base path. On the
+// Base44 app the base is "/", so paths pass through unchanged; on GitHub
+// Pages the site is served from a sub-path (e.g. "/bodydouble/") and the
+// files live under it.
+export function assetUrl(path) {
+  if (typeof path !== "string" || /^(https?:)?\/\//.test(path)) return path;
+  const base = import.meta.env.BASE_URL || "/";
+  return `${base.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
+}
+
 export function formatPublishDate(iso) {
   if (typeof iso !== "string") return "";
   const [year, month] = iso.split("-");

@@ -1,4 +1,5 @@
 import { Pill, ShieldCheck, Download } from "lucide-react";
+import { assetUrl } from "@/lib/resources-data";
 
 // Evidence strength → calm green/blue accent (never a "warning" red/amber).
 const EVIDENCE_META = {
@@ -90,7 +91,7 @@ export default function SupplementCard({ supplement }) {
       {supplement.downloadUrl && (
         <div className="mt-auto pt-4">
           <a
-            href={supplement.downloadUrl}
+            href={assetUrl(supplement.downloadUrl)}
             download
             className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
             style={{ borderColor: "hsl(var(--rx-cyan) / 0.4)" }}
