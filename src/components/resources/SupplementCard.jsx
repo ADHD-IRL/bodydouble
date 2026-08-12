@@ -1,5 +1,4 @@
-import { Pill, ShieldCheck, Download } from "lucide-react";
-import { assetUrl } from "@/lib/resources-data";
+import { Pill, ShieldCheck, ExternalLink } from "lucide-react";
 
 // Evidence strength → calm green/blue accent (never a "warning" red/amber).
 const EVIDENCE_META = {
@@ -88,17 +87,26 @@ export default function SupplementCard({ supplement }) {
         </div>
       </div>
 
-      {supplement.downloadUrl && (
-        <div className="mt-auto pt-4">
+      {supplement.evidenceUrl && (
+        <div
+          className="mt-auto border-t pt-4"
+          style={{ borderColor: "hsl(var(--rx-line))" }}
+        >
+          <p className="text-[0.72rem] leading-relaxed text-[hsl(var(--rx-ink-faint))]">
+            {supplement.evidenceCitation}
+          </p>
           <a
-            href={assetUrl(supplement.downloadUrl)}
-            download
-            className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
+            href={supplement.evidenceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
             style={{ borderColor: "hsl(var(--rx-cyan) / 0.4)" }}
           >
-            <Download aria-hidden="true" className="h-4 w-4" />
-            Download guide
-            <span className="sr-only">: {supplement.name}</span>
+            <ExternalLink aria-hidden="true" className="h-4 w-4" />
+            View the evidence
+            <span className="sr-only">
+              for {supplement.name} (opens in a new tab)
+            </span>
           </a>
         </div>
       )}

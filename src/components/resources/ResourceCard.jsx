@@ -1,5 +1,13 @@
 import { useId, useState } from "react";
-import { Download, BookOpen, ChevronDown, Calendar, Building2 } from "lucide-react";
+import {
+  Download,
+  BookOpen,
+  ChevronDown,
+  ExternalLink,
+  Unlock,
+  Calendar,
+  Users,
+} from "lucide-react";
 import TypeBadge from "./TypeBadge";
 import { formatPublishDate, assetUrl } from "@/lib/resources-data";
 
@@ -15,7 +23,7 @@ export default function ResourceCard({ resource }) {
     >
       <div className="mb-3 flex items-center justify-between gap-3">
         <TypeBadge type={resource.type} />
-        <span className="text-[0.7rem] font-medium uppercase tracking-[0.08em] text-[hsl(var(--rx-ink-faint))]">
+        <span className="text-right text-[0.7rem] font-medium uppercase tracking-[0.08em] text-[hsl(var(--rx-ink-faint))]">
           {resource.category}
         </span>
       </div>
@@ -29,15 +37,19 @@ export default function ResourceCard({ resource }) {
       </p>
 
       <dl className="mt-4 space-y-1.5 text-xs text-[hsl(var(--rx-ink-faint))]">
-        <div className="flex items-center gap-2">
-          <dt className="sr-only">Author or institution</dt>
-          <Building2 aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+        <div className="flex gap-2">
+          <dt className="sr-only">Authors</dt>
+          <Users aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <dd>{resource.authorOrInstitution}</dd>
         </div>
-        <div className="flex items-center gap-2">
-          <dt className="sr-only">Published</dt>
-          <Calendar aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
-          <dd>{formatPublishDate(resource.publishDate)}</dd>
+        <div className="flex gap-2">
+          <dt className="sr-only">Published in</dt>
+          <Calendar aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <dd>
+            {resource.publication}
+            {resource.publication ? " · " : ""}
+            {formatPublishDate(resource.publishDate)}
+          </dd>
         </div>
       </dl>
 
@@ -52,17 +64,55 @@ export default function ResourceCard({ resource }) {
       )}
 
       {/* Actions */}
-      <div className="mt-5 flex flex-wrap items-center gap-2 border-t pt-4" style={{ borderColor: "hsl(var(--rx-line))" }}>
+      <div
+        className="mt-auto flex flex-wrap items-center gap-2 border-t pt-4"
+        style={{ borderColor: "hsl(var(--rx-line))" }}
+      >
         <a
-          href={assetUrl(resource.downloadUrl)}
-          download
+          href={resource.sourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-surface))] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-          style={{ backgroundColor: "hsl(var(--rx-forest))", "--tw-ring-color": "hsl(var(--rx-cyan))", "--tw-ring-offset-color": "hsl(var(--rx-surface))" }}
+          style={{
+            backgroundColor: "hsl(var(--rx-forest))",
+            "--tw-ring-color": "hsl(var(--rx-cyan))",
+            "--tw-ring-offset-color": "hsl(var(--rx-surface))",
+          }}
         >
-          <Download aria-hidden="true" className="h-4 w-4" />
-          Download PDF
-          <span className="sr-only">: {resource.title}</span>
+          <ExternalLink aria-hidden="true" className="h-4 w-4" />
+          Read paper
+          <span className="sr-only">: {resource.title} (opens in a new tab)</span>
         </a>
+
+        {resource.openAccessUrl && (
+          <a
+            href={resource.openAccessUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
+            style={{ borderColor: "hsl(var(--rx-cyan) / 0.4)" }}
+          >
+            <Unlock aria-hidden="true" className="h-4 w-4" />
+            Free full text
+            <span className="sr-only">
+              for {resource.title} (opens in a new tab)
+            </span>
+          </a>
+        )}
+
+        {/* Only for documents the site has the right to host. */}
+        {resource.downloadUrl && (
+          <a
+            href={assetUrl(resource.downloadUrl)}
+            download
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-ink-soft))] transition-colors hover:bg-[hsl(var(--rx-surface-2))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
+            style={{ borderColor: "hsl(var(--rx-line-strong))" }}
+          >
+            <Download aria-hidden="true" className="h-4 w-4" />
+            Download
+            <span className="sr-only">: {resource.title}</span>
+          </a>
+        )}
 
         {hasAbstract && (
           <button
@@ -70,11 +120,10 @@ export default function ResourceCard({ resource }) {
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls={abstractId}
-            className="inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium text-[hsl(var(--rx-cyan))] transition-colors hover:bg-[hsl(var(--rx-cyan-soft))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
-            style={{ borderColor: "hsl(var(--rx-cyan) / 0.4)" }}
+            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-[hsl(var(--rx-ink-soft))] transition-colors hover:text-[hsl(var(--rx-forest))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--rx-cyan))]"
           >
             <BookOpen aria-hidden="true" className="h-4 w-4" />
-            {open ? "Hide Abstract" : "Read Abstract"}
+            {open ? "Hide" : "Abstract"}
             <ChevronDown
               aria-hidden="true"
               className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`}

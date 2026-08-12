@@ -6,7 +6,6 @@ import {
   featuredResources,
   supplements,
   diagnostics,
-  formatPublishDate,
 } from "@/lib/resources-data";
 import ResourceCard from "@/components/resources/ResourceCard";
 import ResearchCard from "@/components/resources/ResearchCard";
@@ -81,9 +80,10 @@ export default function Resources() {
               Clear, credible research &amp; resources on neurodivergence.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-relaxed text-[hsl(var(--rx-ink-soft))] sm:text-lg">
-              A calm, uncluttered collection of whitepapers, clinical studies,
-              worksheets and toolkits — curated to be neuro-affirming, evidence-led
-              and easy to read. Filter by area, or read the emerging research below.
+              A calm, uncluttered collection of peer-reviewed research on
+              neurodivergence — summarised in plain language and linked to the
+              original source, so you can always check it yourself. Free full text is
+              flagged wherever it exists.
             </p>
             <p className="mt-6 text-sm text-[hsl(var(--rx-ink-faint))]">
               {counts.all} resources · {categories.length} focus areas
@@ -112,8 +112,8 @@ export default function Resources() {
             </div>
 
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[hsl(var(--rx-ink-soft))]">
-              Transdiagnostic approaches and clinical work at the frontier of how we
-              understand neurodivergent minds.
+              The work that most changed how neurodivergence is understood — from the
+              double empathy problem to community-defined autistic burnout.
             </p>
 
             <div className="mt-8 grid gap-5">
@@ -298,8 +298,10 @@ export default function Resources() {
             This library is for information and education. It is not a substitute
             for individualised clinical, medical or therapeutic advice.
           </p>
-          <p className="mt-2">
-            Last updated {formatPublishDate("2026-02-01")}.
+          <p className="mt-2 max-w-2xl leading-relaxed">
+            Every entry links to its original published source. Summaries are written
+            for this site and are not the authors&rsquo; own words — follow the link
+            before citing anything.
           </p>
         </div>
       </footer>
