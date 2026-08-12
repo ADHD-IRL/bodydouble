@@ -1,15 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Library, Sparkles, ArrowLeft, Leaf, SearchX } from "lucide-react";
+import { Library, Sparkles, ArrowLeft, Leaf, SearchX, Pill, Info } from "lucide-react";
 import {
   resources,
   categories,
   featuredResources,
+  supplements,
   formatPublishDate,
 } from "@/lib/resources-data";
 import ResourceCard from "@/components/resources/ResourceCard";
 import ResearchCard from "@/components/resources/ResearchCard";
 import CategoryFilter from "@/components/resources/CategoryFilter";
+import SupplementCard from "@/components/resources/SupplementCard";
 
 const SENSORY_KEY = "rx-sensory-mode";
 
@@ -174,6 +176,64 @@ export default function Resources() {
             </div>
           )}
         </section>
+
+        {/* ── Supplement Support ────────────────────────────────── */}
+        {supplements.length > 0 && (
+          <>
+            <div
+              className="my-14 h-px w-full sm:my-16"
+              style={{ backgroundColor: "hsl(var(--rx-line))" }}
+              role="presentation"
+            />
+
+            <section aria-labelledby="supplements-heading">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[hsl(var(--rx-cyan))]">
+                <Pill aria-hidden="true" className="h-4 w-4" />
+                Supplement Support
+              </p>
+              <h2
+                id="supplements-heading"
+                className="mt-2 font-serif text-3xl leading-tight text-[hsl(var(--rx-ink))]"
+              >
+                Nutritional support, explained calmly
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[hsl(var(--rx-ink-soft))]">
+                A plain-language look at supplements sometimes explored alongside
+                neurodivergence — what the evidence suggests, and what to be careful about.
+              </p>
+
+              {/* Safety note */}
+              <div
+                className="mt-6 flex gap-3 rounded-xl border px-4 py-3.5"
+                style={{
+                  borderColor: "hsl(var(--rx-line-strong))",
+                  backgroundColor: "hsl(var(--rx-surface))",
+                }}
+              >
+                <Info
+                  aria-hidden="true"
+                  className="mt-0.5 h-5 w-5 shrink-0"
+                  style={{ color: "hsl(var(--rx-forest))" }}
+                />
+                <p className="text-sm leading-relaxed text-[hsl(var(--rx-ink-soft))]">
+                  <span className="font-medium text-[hsl(var(--rx-ink))]">
+                    Supplements are not a treatment for neurodivergence
+                  </span>{" "}
+                  and can interact with medication. Several — iron, zinc, vitamin D —
+                  should only be taken once testing confirms a need. This is general
+                  information, not medical advice: please talk with a qualified clinician,
+                  and take extra care with children.
+                </p>
+              </div>
+
+              <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {supplements.map((supplement) => (
+                  <SupplementCard key={supplement.id} supplement={supplement} />
+                ))}
+              </div>
+            </section>
+          </>
+        )}
       </main>
 
       {/* ── Footer ────────────────────────────────────────────────── */}
